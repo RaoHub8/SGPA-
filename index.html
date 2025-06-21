@@ -1,0 +1,59 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | SGPA Predictor</title>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #fff;
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>MEDICAL ELECTRONICS</h1>
+  <h2>Login to SGPA Predictor</h2>
+  <input type="text" id="usn" placeholder="Enter USN">
+  <input type="date" id="dob" placeholder="Enter DOB">
+  <button onclick="login()">Login</button>
+
+  <script>
+    function login() {
+      const usn = document.getElementById("usn").value;
+      const dob = document.getElementById("dob").value;
+
+      if (!usn || !dob) {
+        alert("Please fill both fields.");
+        return;
+      }
+
+      fetch("https://sgpa-backend-m676.onrender.com/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ usn, dob })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.usn) {
+          localStorage.setItem("usn", data.usn);
+          window.location.href = "predictor.html"; // redirect
+        } else {
+          alert("Login failed");
+        }
+      });
+    }
+  </script>
+</body>
+</html>
