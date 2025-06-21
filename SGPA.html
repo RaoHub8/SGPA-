@@ -58,6 +58,15 @@
 
 <h1>MEDICAL ELECTRONICS</h1>
 <h2>SGPA Predictor</h2>
+
+<div>
+  <label for="usn">USN:</label>
+  <input type="text" id="usn" placeholder="Your USN">
+  <label for="dob">DOB:</label>
+  <input type="date" id="dob">
+  <button onclick="loginUser()">Login</button>
+</div>
+
 <div id="form"></div>
 <button onclick="calculateSGPA()">Predict SGPA</button>
 <button onclick="clearInputs()">Clear Data</button>
@@ -107,6 +116,26 @@ function calculateRequiredMarks(internal, grade, isHalf) {
   return required > maxLimit || required < 0 ? -1 : required;
 }
 
+function loginUser() {
+  const usn = document.getElementById("usn").value;
+  const dob = document.getElementById("dob").value;
+
+  fetch("https://sgpa-backend-m676.onrender.com/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usn, dob })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.usn) {
+      alert("✅ Login successful for " + data.usn);
+      localStorage.setItem("usn", data.usn);
+    } else {
+      alert("❌ Login failed: " + data.error);
+    }
+  });
+}
+
 function calculateSGPA() {
   let totalCredits = 0;
   let totalPoints = 0;
@@ -146,6 +175,15 @@ function calculateSGPA() {
   const sgpa = (totalPoints / totalCredits).toFixed(2);
   html += `<h2>🎯 Predicted SGPA: ${sgpa}</h2>`;
   document.getElementById("result").innerHTML = html;
+
+  const usn = localStorage.getItem("usn");
+  if (usn) {
+    fetch("https://sgpa-backend-m676.onrender.com/save-history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usn, result: sgpa })
+    });
+  }
 }
 
 function clearInputs() {
