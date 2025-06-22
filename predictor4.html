@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>4th Sem SGPA Predictor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="predictor4.css">
   <style>
     body {
       background: #1e1e1e;
@@ -156,7 +157,7 @@
         if (req !== -1) {
           className = "possible";
           cell = req.toFixed(2);
-          if (realisticGrade === 0 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 90))) {
+          if (realisticGrade === 0 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 86))) {
             realisticGrade = grade;
             className = "realistic";
           }
@@ -165,7 +166,7 @@
       });
 
       html += `</tr></table>`;
-      html += `<p><strong>✔ Realistic Grade Chosen:</strong> ${gradeLabels[realisticGrade]} (${realisticGrade})</p>`;
+      html += `<p><strong>✔ Probable Grade Chosen:</strong> ${gradeLabels[realisticGrade]} (${realisticGrade})</p>`;
       totalPoints += realisticGrade * sub.credits;
       totalCredits += sub.credits;
     });
