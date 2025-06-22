@@ -41,22 +41,36 @@
   <button onclick="login()">Login</button>
 
   <script>
-    function login() {
-      const name = document.getElementById("name").value;
-      const sem = document.querySelector('input[name="sem"]:checked').value;
+  function login() {
+    const name = document.getElementById("name").value;
+    const sem = document.querySelector('input[name="sem"]:checked').value;
 
-      if (!name || !sem) {
-        alert("Please enter your name and select semester.");
-        return;
-      }
-
-      localStorage.setItem("name", name);
-      localStorage.setItem("semester", sem);
-
-      // No backend call needed if you're not storing users anymore
-      const redirectPage = sem === "6" ? "predictor.html" : "predictor4.html";
-      window.location.href = redirectPage;
+    if (!name || !sem) {
+      alert("Please enter your name and select semester.");
+      return;
     }
-  </script>
+
+    fetch("https://sgpa-backend-m676.onrender.com/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, semester: sem })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.name) {
+        localStorage.setItem("name", name);
+        localStorage.setItem("semester", sem);
+        const redirectPage = sem === "6" ? "predictor.html" : "predictor4.html";
+        window.location.href = redirectPage;
+      } else {
+        alert("Login failed");
+      }
+    })
+    .catch(err => {
+      console.error("Login error:", err);
+      alert("Server error. Please try again.");
+    });
+  }
+</script>
 </body>
 </html>
