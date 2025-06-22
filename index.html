@@ -1,29 +1,56 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Login | SGPA Predictor</title>
-  <link rel="stylesheet" href="index.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #1e1e1e;
       color: #fff;
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
     }
-    input, button, label {
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    input, button {
       padding: 10px;
       margin: 10px;
       font-size: 16px;
+      border: none;
+      border-radius: 5px;
     }
-    .sem-selector {
+    button {
+      background-color: #ff914d;
+      color: #1e1e1e;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #ff7b26;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #aaa;
+      text-align: center;
+    }
+    .radio-group {
       display: flex;
+      justify-content: center;
       gap: 20px;
+      margin: 10px 0;
+    }
+    label {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -31,46 +58,48 @@
   <h1>MEDICAL ELECTRONICS</h1>
   <h2>Login to SGPA Predictor</h2>
 
-  <input type="text" id="name" placeholder="Enter Your Name">
-
-  <div class="sem-selector">
-    <label><input type="radio" name="sem" value="6" checked> 6th Semester</label>
-    <label><input type="radio" name="sem" value="4"> 4th Semester</label>
+  <input type="text" id="name" placeholder="Enter your name" />
+  
+  <div class="radio-group">
+    <label><input type="radio" name="sem" value="6"> 6th Sem</label>
+    <label><input type="radio" name="sem" value="4"> 4th Sem</label>
   </div>
 
   <button onclick="login()">Login</button>
 
+  <div class="footer">By Anoop Rao, Medical Electronics 6th Sem</div>
+
   <script>
-  function login() {
-    const name = document.getElementById("name").value;
-    const sem = document.querySelector('input[name="sem"]:checked').value;
+    function login() {
+      const name = document.getElementById("name").value.trim();
+      const sem = document.querySelector('input[name="sem"]:checked')?.value;
 
-    if (!name || !sem) {
-      alert("Please enter your name and select semester.");
-      return;
-    }
-
-    fetch("https://sgpa-backend-m676.onrender.com/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, semester: sem })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.name) {
-        localStorage.setItem("name", name);
-        localStorage.setItem("semester", sem);
-        const redirectPage = sem === "6" ? "predictor.html" : "predictor4.html";
-        window.location.href = redirectPage;
-      } else {
-        alert("Login failed");
+      if (!name || !sem) {
+        alert("Please enter your name and select semester.");
+        return;
       }
-    })
-    .catch(err => {
-      console.error("Login error:", err);
-      alert("Server error. Please try again.");
-    });
-  }
-</script>
+
+      fetch("https://sgpa-backend-m676.onrender.com/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, semester: sem })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.name || data.message === "Login successful") {
+          localStorage.setItem("name", name);
+          localStorage.setItem("semester", sem);
+          const redirectPage = sem === "6" ? "predictor.html" : "predictor4.html";
+          window.location.href = redirectPage;
+        } else {
+          alert("Login failed");
+        }
+      })
+      .catch(err => {
+        console.error("Login error:", err);
+        alert("Server error. Please try again.");
+      });
+    }
+  </script>
 </body>
 </html>
