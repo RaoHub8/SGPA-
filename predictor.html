@@ -156,15 +156,17 @@ function calculateSGPA() {
   html += `<h2>🎯 Predicted SGPA: ${sgpa}</h2>`;
   document.getElementById("result").innerHTML = html;
 
-  const usn = localStorage.getItem("usn");
-  if (usn) {
-    fetch("https://sgpa-backend-m676.onrender.com/save-history", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ usn, result: sgpa })
-    });
-  }
+const name = localStorage.getItem("name");
+const semester = localStorage.getItem("semester");
+
+if (name) {
+  fetch("https://sgpa-backend-m676.onrender.com/save-history", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, semester, result: sgpa })
+  });
 }
+
 
 function clearInputs() {
   subjects.forEach((_, i) => document.getElementById(`sub${i}`).value = "");
