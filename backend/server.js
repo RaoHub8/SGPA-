@@ -10,58 +10,61 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Google Sheets Setup (uses credentials from environment variable)
+// Google Sheets Setup
 const credentials = JSON.parse(process.env.GOOGLE_KEY);
 const auth = new google.auth.GoogleAuth({
   credentials,
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
-const SHEET_ID = '1G2JrpFBAuQTAN94SlhK1gPkpLMTw8rcQ4J-CdPJ-acs'; // ✅ Your Google Sheet ID
+const SHEET_ID = '1G2JrpFBAuQTAN94SlhK1gPkpLMTw8rcQ4J-CdPJ-acs'; // Replace with your actual sheet ID
 
 let users = {};
 const historyFile = 'user_history.json';
 
-// Load previous users if history exists
+// Load previous users if any
 if (fs.existsSync(historyFile)) {
   users = JSON.parse(fs.readFileSync(historyFile));
 }
 
-// Function to append row to Google Sheet
-async function appendToSheet(usn, sgpa) {
+// Append a row to Google Sheet
+async function appendToSheet(name, semester, sgpa) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
-    range: 'Sheet1!A:C',
+    range: 'Sheet1!A:D',
     valueInputOption: 'USER_ENTERED',
     requestBody: {
-      values: [[new Date().toISOString(), usn, sgpa]],
+      values: [[new Date().toISOString(), name, semester, sgpa]],
     },
   });
 }
 
-// Login route
+// Login route (using name and semester)
 app.post('/login', (req, res) => {
-  const { usn, dob } = req.body;
-  if (!usn || !dob) return res.status(400).json({ error: 'USN and DOB required' });
-  if (!users[usn]) users[usn] = { dob, history: [] };
-  return res.status(200).json({ message: 'Login successful', usn });
+  const { name, semester } = req.body;
+  if (!name || !semester) return res.status(400).json({ error: 'Name and Semester required' });
+
+  if (!users[name]) users[name] = { semester, history: [] };
+
+  return res.status(200).json({ message: 'Login successful', name });
 });
 
-// Save SGPA history and export to Google Sheets
+// Save history and update Google Sheet
 app.post('/save-history', async (req, res) => {
-  const { usn, result } = req.body;
-  if (!usn || !result) return res.status(400).json({ error: 'Missing parameters' });
+  const { name, semester, result } = req.body;
+  if (!name || !semester || !result) return res.status(400).json({ error: 'Missing parameters' });
 
-  if (!users[usn]) return res.status(404).json({ error: 'User not found' });
-  users[usn].history.push({ date: new Date(), result });
+  if (!users[name]) return res.status(404).json({ error: 'User not found' });
+
+  users[name].history.push({ date: new Date(), semester, result });
 
   fs.writeFileSync(historyFile, JSON.stringify(users, null, 2));
 
   try {
-    await appendToSheet(usn, result);
+    await appendToSheet(name, semester, result);
     res.status(200).json({ message: 'History saved and exported to Google Sheets' });
   } catch (err) {
     console.error("❌ Google Sheets API error:", err);
@@ -69,14 +72,14 @@ app.post('/save-history', async (req, res) => {
   }
 });
 
-// Fetch user history
-app.get('/history/:usn', (req, res) => {
-  const { usn } = req.params;
-  if (!users[usn]) return res.status(404).json({ error: 'User not found' });
-  res.status(200).json({ history: users[usn].history });
+// Fetch history
+app.get('/history/:name', (req, res) => {
+  const { name } = req.params;
+  if (!users[name]) return res.status(404).json({ error: 'User not found' });
+  res.status(200).json({ history: users[name].history });
 });
 
-// Start the server
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 SGPA backend running on port ${PORT}`);
 });
