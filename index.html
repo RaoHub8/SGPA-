@@ -16,44 +16,46 @@
       height: 100vh;
       flex-direction: column;
     }
-    input, button {
+    input, button, label {
       padding: 10px;
       margin: 10px;
       font-size: 16px;
+    }
+    .sem-selector {
+      display: flex;
+      gap: 20px;
     }
   </style>
 </head>
 <body>
   <h1>MEDICAL ELECTRONICS</h1>
   <h2>Login to SGPA Predictor</h2>
-  <input type="text" id="usn" placeholder="Enter USN">
-  <input type="date" id="dob" placeholder="Enter DOB">
+
+  <input type="text" id="name" placeholder="Enter Your Name">
+
+  <div class="sem-selector">
+    <label><input type="radio" name="sem" value="6" checked> 6th Semester</label>
+    <label><input type="radio" name="sem" value="4"> 4th Semester</label>
+  </div>
+
   <button onclick="login()">Login</button>
 
   <script>
     function login() {
-      const usn = document.getElementById("usn").value;
-      const dob = document.getElementById("dob").value;
+      const name = document.getElementById("name").value;
+      const sem = document.querySelector('input[name="sem"]:checked').value;
 
-      if (!usn || !dob) {
-        alert("Please fill both fields.");
+      if (!name || !sem) {
+        alert("Please enter your name and select semester.");
         return;
       }
 
-      fetch("https://sgpa-backend-m676.onrender.com/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ usn, dob })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.usn) {
-          localStorage.setItem("usn", data.usn);
-          window.location.href = "predictor.html"; // redirect
-        } else {
-          alert("Login failed");
-        }
-      });
+      localStorage.setItem("name", name);
+      localStorage.setItem("semester", sem);
+
+      // No backend call needed if you're not storing users anymore
+      const redirectPage = sem === "6" ? "predictor.html" : "predictor4.html";
+      window.location.href = redirectPage;
     }
   </script>
 </body>
