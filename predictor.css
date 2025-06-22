@@ -1,0 +1,149 @@
+/* Styling for the SGPA predictor page */
+body {
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2c2c2c 100%);
+  color: #f0f0f0;
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #cccccc;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.subject-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  background: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+label {
+  width: 250px;
+  font-weight: bold;
+  color: #f0f0f0;
+}
+
+input {
+  width: 100px;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  background: #444;
+  color: #f0f0f0;
+  font-size: 1rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  background: #555;
+  box-shadow: 0 0 8px rgba(0, 150, 255, 0.5);
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px 5px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.output-table {
+  width: 100%;
+  max-width: 800px;
+  border-collapse: collapse;
+  margin: 20px auto;
+  background: #333;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.output-table th, .output-table td {
+  border: 1px solid #555;
+  padding: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.output-table th {
+  background: #444;
+  color: #f0f0f0;
+}
+
+.possible {
+  background-color: #24532f;
+  color: #fff;
+}
+
+.not-possible {
+  background-color: #772020;
+  color: #fff;
+}
+
+.realistic {
+  background-color: #786214;
+  color: #fff;
+}
+
+#result {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#result p {
+  font-size: 1rem;
+  margin: 10px 0;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  .subject-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  label, input {
+    width: 100%;
+  }
+  .output-table {
+    font-size: 0.8rem;
+  }
+  
