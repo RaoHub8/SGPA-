@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>4th Sem SGPA Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #f0f0f0;
+    }
+    .subject-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    label {
+      width: 280px;
+      font-weight: bold;
+    }
+    input {
+      width: 100px;
+      padding: 5px;
+    }
+    .output-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .output-table th, .output-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    .possible { background-color: #24532f; }
+    .not-possible { background-color: #772020; }
+    .realistic { background-color: #786214; }
+    button {
+      padding: 8px 15px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>MEDICAL ELECTRONICS</h1>
+<h2>4th Sem SGPA Predictor</h2>
+
+<div id="form"></div>
+<button onclick="calculateSGPA()">Predict SGPA</button>
+<button onclick="clearInputs()">Clear Data</button>
+<div id="result"></div>
+
+<script>
+if (!localStorage.getItem("name") || !localStorage.getItem("semester")) {
+  alert("Please login first!");
+  window.location.href = "index.html";
+}
+
+const subjects = [
+  { name: "Control Systems", credits: 4, isHalf: false },
+  { name: "Biomedical Signal Processing", credits: 3, isHalf: false },
+  { name: "RTES", credits: 3, isHalf: false },
+  { name: "LIC", credits: 3, isHalf: false },
+  { name: "Maths", credits: 3, isHalf: false },
+  { name: "AEC – Telemedicine", credits: 1, isHalf: true },
+  { name: "BSP Lab", credits: 1, isHalf: true },
+  { name: "LIC Lab", credits: 1, isHalf: true },
+  { name: "RTES Lab", credits: 1, isHalf: true },
+];
+
+const grades = [10, 9, 8, 7, 6, 5, 0];
+const gradeLabels = {10: "O", 9: "A+", 8: "A", 7: "B+", 6: "B", 5: "C", 0: "F"};
+
+function createForm() {
+  const form = document.getElementById("form");
+  subjects.forEach((sub, i) => {
+    const group = document.createElement("div");
+    group.className = "subject-group";
+    group.innerHTML = `
+      <label for="sub${i}">${sub.name} (Internal Marks):</label>
+      <input type="number" id="sub${i}" min="0" max="50">
+    `;
+    form.appendChild(group);
+  });
+}
+
+function calculateRequiredMarks(internal, grade, isHalf) {
+  let lowerBound;
+  switch (grade) {
+    case 10: lowerBound = 90; break;
+    case 9: lowerBound = 80; break;
+    case 8: lowerBound = 70; break;
+    case 7: lowerBound = 60; break;
+    case 6: lowerBound = 50; break;
+    case 5: lowerBound = 40; break;
+    default: return -1;
+  }
+  const required = isHalf ? (lowerBound - internal) : 2 * (lowerBound - internal);
+  const maxLimit = isHalf ? 50 : 100;
+  return required > maxLimit || required < 0 ? -1 : required;
+}
+
+function calculateSGPA() {
+  let totalCredits = 0;
+  let totalPoints = 0;
+  let html = "";
+
+  subjects.forEach((sub, i) => {
+    const input = document.getElementById(`sub${i}`).value;
+    const internal = parseFloat(input);
+    if (isNaN(internal)) return;
+
+    html += `<h3>${sub.name}</h3>`;
+    html += `<table class='output-table'><tr>`;
+    grades.forEach(g => html += `<th>${gradeLabels[g]}<br>(${g})</th>`);
+    html += `</tr><tr>`;
+
+    let realisticGrade = 0;
+    grades.forEach(grade => {
+      const req = calculateRequiredMarks(internal, grade, sub.isHalf);
+      let className = "not-possible";
+      let cell = "-";
+      if (req !== -1) {
+        className = "possible";
+        cell = req.toFixed(2);
+        if (realisticGrade === 0 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 90))) {
+          realisticGrade = grade;
+          className = "realistic";
+        }
+      }
+      html += `<td class='${className}'>${cell}</td>`;
+    });
+
+    html += `</tr></table>`;
+    html += `<p><strong>✔ Realistic Grade Chosen:</strong> ${gradeLabels[realisticGrade]} (${realisticGrade})</p>`;
+    totalPoints += realisticGrade * sub.credits;
+    totalCredits += sub.credits;
+  });
+
+  const sgpa = (totalPoints / totalCredits).toFixed(2);
+  html += `<h2>🎯 Predicted SGPA: ${sgpa}</h2>`;
+  document.getElementById("result").innerHTML = html;
+
+  const name = localStorage.getItem("name");
+  const semester = localStorage.getItem("semester");
+  if (name && semester) {
+    fetch("https://sgpa-backend-m676.onrender.com/save-history", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name, semester, result: sgpa })
+    });
+  }
+}
+
+function clearInputs() {
+  subjects.forEach((_, i) => document.getElementById(`sub${i}`).value = "");
+  document.getElementById("result").innerHTML = "";
+}
+
+createForm();
+</script>
+</body>
+</html>
