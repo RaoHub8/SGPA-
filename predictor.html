@@ -180,42 +180,46 @@
   }
 
   function updateSGPA() {
-    let totalCredits = 0;
-    let totalPoints = 0;
+  let totalCredits = 0;
+  let totalPoints = 0;
 
-    subjects.forEach(sub => {
-      const grade = selectedGrades[sub.name];
-      if (typeof grade === "number") {
-        totalPoints += grade * sub.credits;
-        totalCredits += sub.credits;
-      }
-    });
+  subjects.forEach(sub => {
+    const grade = selectedGrades[sub.name];
+    if (typeof grade === "number") {
+      totalPoints += grade * sub.credits;
+      totalCredits += sub.credits;
+    }
+  });
 
-    const sgpa = (totalPoints / totalCredits).toFixed(2);
-    const sgpaHTML = `<h2>🎯 Updated SGPA: ${sgpa}</h2>`;
-    document.getElementById("result").insertAdjacentHTML("beforeend", sgpaHTML);
-    document.getElementById("result").dataset.sgpa = sgpa;
-  }
+  const sgpa = (totalPoints / totalCredits).toFixed(2);
+  const sgpaHTML = `<h2>🎯 Updated SGPA: ${sgpa}</h2>`;
+  document.getElementById("result").insertAdjacentHTML("beforeend", sgpaHTML);
+  document.getElementById("result").dataset.sgpa = sgpa;
 
-  function saveResult() {
-    const name = localStorage.getItem("name");
-    const semester = localStorage.getItem("semester");
-    const result = document.getElementById("result").dataset.sgpa || "0.00";
-    if (!name || !semester || !result) return alert("Missing information");
+  // ✅ Automatically save after update
+  saveResult(sgpa);
+}
 
-    fetch("https://sgpa-backend-m676.onrender.com/save-history", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        semester,
-        result,
-        grades: selectedGrades
-      })
-    }).then(res => res.json())
-      .then(data => alert(data.message || "Saved!"))
-      .catch(err => alert("Error saving."));
-  }
+
+  function saveResult(sgpa) {
+  const name = localStorage.getItem("name");
+  const semester = localStorage.getItem("semester");
+  if (!name || !semester || !sgpa) return;
+
+  fetch("https://sgpa-backend-m676.onrender.com/save-history", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      semester,
+      result: sgpa,
+      grades: selectedGrades
+    })
+  }).then(res => res.json())
+    .then(data => console.log("✅ Auto-saved SGPA:", data.message))
+    .catch(err => console.error("❌ Save error:", err));
+}
+
 
   function viewHistory() {
     const name = localStorage.getItem("name");
