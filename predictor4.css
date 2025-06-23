@@ -105,10 +105,9 @@ button:active {
   background: #444;
   color: #ffd6a5;
 }
-
 .possible {
-  background-color: #ff914d;
-  color: #1e1e1e;
+  background-color: #24532f;
+  color: #fff;
 }
 
 .not-possible {
@@ -117,8 +116,8 @@ button:active {
 }
 
 .realistic {
-  background-color: #ffb085;
-  color: #1e1e1e;
+  background-color: #786214;
+  color: #fff;
 }
 
 #result {
