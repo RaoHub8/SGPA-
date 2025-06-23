@@ -79,6 +79,16 @@ app.get('/history/:name', (req, res) => {
   res.status(200).json({ history: users[name].history });
 });
 
+// Clear user's history (NEW)
+app.delete('/history/:name', (req, res) => {
+  const { name } = req.params;
+  if (!users[name]) return res.status(404).json({ error: 'User not found' });
+
+  users[name].history = [];
+  fs.writeFileSync(historyFile, JSON.stringify(users, null, 2));
+  res.status(200).json({ message: 'History cleared successfully' });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 SGPA backend running on port ${PORT}`);
