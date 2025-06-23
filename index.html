@@ -100,6 +100,58 @@
         alert("Server error. Please try again.");
       });
     }
+    function closeModal() {
+  document.getElementById("whatsNewModal").style.display = "none";
+}
+window.addEventListener("load", () => {
+  if (!sessionStorage.getItem("whatsNewShown")) {
+    document.getElementById("whatsNewModal").style.display = "flex";
+    sessionStorage.setItem("whatsNewShown", "true");
+  } else {
+    document.getElementById("whatsNewModal").style.display = "none";
+  }
+});
+
   </script>
+  <!-- What's New Modal -->
+<div id="whatsNewModal" style="
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+">
+  <div style="
+    background-color: #2c2c2c;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 145, 77, 0.4);
+    text-align: left;
+  ">
+    <h2>📢 What's New</h2>
+    <ul style="line-height: 1.6;">
+      <li>🎯 Auto SGPA saving with live grade selection</li>
+      <li>📜 View & clear your saved history</li>
+      <li>🎨 Refreshed dark mode UI with orange theme</li>
+      <li>📁 Works for both 4th & 6th semester students</li>
+    </ul>
+    <button onclick="closeModal()" style="
+      background-color: #ff914d;
+      color: #1e1e1e;
+      padding: 10px 20px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    ">Got it!</button>
+  </div>
+</div>
+
 </body>
 </html>
