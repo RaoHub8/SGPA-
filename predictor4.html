@@ -5,58 +5,6 @@
   <title>4th Sem SGPA Predictor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="predictor4.css">
-  <style>
-    body {
-      background: #1e1e1e;
-      color: #f0f0f0;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    h1, h2, h3 {
-      color: #f0f0f0;
-    }
-    .subject-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    label {
-      width: 280px;
-      font-weight: bold;
-    }
-    input {
-      width: 100px;
-      padding: 5px;
-    }
-    .output-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    .output-table th, .output-table td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    .possible { background-color: #24532f; }
-    .not-possible { background-color: #772020; }
-    .realistic { background-color: #786214; }
-    button {
-      padding: 8px 15px;
-      margin: 10px 5px;
-      cursor: pointer;
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .info {
-      font-size: 14px;
-      color: #aaa;
-    }
-  </style>
 </head>
 <body>
 
@@ -70,18 +18,17 @@
 <div id="form"></div>
 <button onclick="calculateSGPA()">Predict SGPA</button>
 <button onclick="clearInputs()">Clear Data</button>
+<button onclick="viewHistory()">📜 View History</button>
+<button onclick="clearHistory()">🧹 Clear History</button>
 <div id="result"></div>
+<div id="history"></div>
 
 <script>
-  // Auto logout on refresh
   window.addEventListener("load", () => {
     const name = localStorage.getItem("name");
     const semester = localStorage.getItem("semester");
-    if (!name || !semester || semester !== "4") {
-      logout(); // Log out if session invalid or wrong semester
-    } else {
-      document.getElementById("userInfo").innerText = `👤 ${name} | Semester: ${semester}`;
-    }
+    if (!name || semester !== "4") logout();
+    document.getElementById("userInfo").innerText = `👤 ${name} | Semester: ${semester}`;
   });
 
   function logout() {
@@ -157,7 +104,7 @@
         if (req !== -1) {
           className = "possible";
           cell = req.toFixed(2);
-          if (realisticGrade === 0 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 86))) {
+          if (realisticGrade === 0 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 90))) {
             realisticGrade = grade;
             className = "realistic";
           }
@@ -189,6 +136,48 @@
   function clearInputs() {
     subjects.forEach((_, i) => document.getElementById(`sub${i}`).value = "");
     document.getElementById("result").innerHTML = "";
+  }
+
+  function viewHistory() {
+    const name = localStorage.getItem("name");
+    if (!name) return alert("Please login again.");
+    fetch(`https://sgpa-backend-m676.onrender.com/history/${name}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.history || data.history.length === 0) {
+          document.getElementById("history").innerHTML = "<p>No history found.</p>";
+          return;
+        }
+        let html = "<h3>Your SGPA History:</h3><ul style='list-style:none;padding:0'>";
+        data.history.forEach(entry => {
+          const date = new Date(entry.date).toLocaleString();
+          html += `<li>📅 ${date} — SGPA: <strong>${entry.result}</strong></li>`;
+        });
+        html += "</ul>";
+        document.getElementById("history").innerHTML = html;
+      })
+      .catch(err => {
+        console.error("History error:", err);
+        document.getElementById("history").innerHTML = "<p>Error loading history.</p>";
+      });
+  }
+
+  function clearHistory() {
+    const name = localStorage.getItem("name");
+    if (!name) return alert("Please login again.");
+    if (!confirm("Clear all your SGPA prediction history?")) return;
+    fetch(`https://sgpa-backend-m676.onrender.com/history/${name}`, {
+      method: "DELETE"
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "History cleared.");
+        document.getElementById("history").innerHTML = "";
+      })
+      .catch(err => {
+        console.error("Clear error:", err);
+        alert("Could not clear history.");
+      });
   }
 
   createForm();
