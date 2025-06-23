@@ -4,7 +4,55 @@
   <meta charset="UTF-8" />
   <title>6th Sem SGPA Predictor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="predictor4.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #f0f0f0;
+    }
+    h1, h2, h3 {
+      color: #f0f0f0;
+    }
+    .subject-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    label {
+      width: 280px;
+      font-weight: bold;
+    }
+    input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+    .output-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .output-table th, .output-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    .possible { background-color: #24532f; }
+    .not-possible { background-color: #772020; }
+    .realistic { background-color: #786214; }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .info { font-size: 14px; color: #aaa; }
+    button {
+      padding: 8px 15px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
@@ -16,27 +64,15 @@
 <p class="info" id="userInfo"></p>
 
 <div id="form"></div>
-<button onclick="calculateSGPA()">Predict SGPA</button>
+<button onclick="predictGrades()">Predict SGPA</button>
+<button onclick="saveResult()">Save Result</button>
 <button onclick="clearInputs()">Clear Data</button>
 <button onclick="viewHistory()">📜 View History</button>
 <button onclick="clearHistory()">🧹 Clear History</button>
-<div id="history"></div>
 <div id="result"></div>
+<div id="history"></div>
 
 <script>
-  window.addEventListener("load", () => {
-    const name = localStorage.getItem("name");
-    const semester = localStorage.getItem("semester");
-    if (!name || semester !== "6") logout();
-    document.getElementById("userInfo").innerText = `👤 ${name} | Semester: ${semester}`;
-  });
-
-  function logout() {
-    localStorage.clear();
-    alert("You have been logged out.");
-    window.location.href = "index.html";
-  }
-
   const subjects = [
     { name: "BMIP", credits: 4, isHalf: false },
     { name: "MINI Project", credits: 4, isHalf: true },
@@ -50,8 +86,14 @@
 
   const grades = [10, 9, 8, 7, 6, 5, 0];
   const gradeLabels = {10: "O", 9: "A+", 8: "A", 7: "B+", 6: "B", 5: "C", 0: "F"};
+  const selectedGrades = {};
 
-  function createForm() {
+  window.addEventListener("load", () => {
+    const name = localStorage.getItem("name");
+    const semester = localStorage.getItem("semester");
+    if (!name || semester !== "6") logout();
+    document.getElementById("userInfo").innerText = `👤 ${name} | Semester: ${semester}`;
+
     const form = document.getElementById("form");
     subjects.forEach((sub, i) => {
       const group = document.createElement("div");
@@ -62,6 +104,12 @@
       `;
       form.appendChild(group);
     });
+  });
+
+  function logout() {
+    localStorage.clear();
+    alert("You have been logged out.");
+    window.location.href = "index.html";
   }
 
   function calculateRequiredMarks(internal, grade, isHalf) {
@@ -80,106 +128,129 @@
     return required > maxLimit || required < 0 ? -1 : required;
   }
 
-  function calculateSGPA() {
-    let totalCredits = 0;
-    let totalPoints = 0;
+  function predictGrades() {
     let html = "";
-
+    selectedGrades.clear;
     subjects.forEach((sub, i) => {
       const input = document.getElementById(`sub${i}`).value;
       const internal = parseFloat(input);
       if (isNaN(internal)) return;
 
-      html += `<h3>${sub.name}</h3>`;
-      html += `<table class='output-table'><tr>`;
-      grades.forEach(g => html += `<th>${gradeLabels[g]}<br>(${g})</th>`);
+      html += `<h3>${sub.name}</h3><table class="output-table"><tr>`;
+      grades.forEach(g => html += `<th>${gradeLabels[g]}</th>`);
       html += `</tr><tr>`;
-
-      let realisticGrade = 0;
       grades.forEach(grade => {
         const req = calculateRequiredMarks(internal, grade, sub.isHalf);
-        let className = "not-possible";
-        let cell = "-";
-        if (req !== -1) {
-          className = "possible";
-          cell = req.toFixed(2);
-          if (realisticGrade === 0 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 82))) {
-            realisticGrade = grade;
-            className = "realistic";
-          }
-        }
-        html += `<td class='${className}'>${cell}</td>`;
+        const cell = req === -1 ? "-" : req.toFixed(2);
+        const className = req === -1 ? "not-possible" : (req <= (sub.isHalf ? 45 : 90) ? "realistic" : "possible");
+        html += `<td class="${className}">${cell}</td>`;
       });
-
       html += `</tr></table>`;
-      html += `<p><strong>✔ Probable Grade Chosen:</strong> ${gradeLabels[realisticGrade]} (${realisticGrade})</p>`;
-      totalPoints += realisticGrade * sub.credits;
-      totalCredits += sub.credits;
+
+      // Set default realistic grade
+      let defaultGrade = 0;
+      for (let g of grades) {
+        const req = calculateRequiredMarks(internal, g, sub.isHalf);
+        if (req !== -1 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 90))) {
+          defaultGrade = g;
+          break;
+        }
+      }
+      selectedGrades[sub.name] = defaultGrade;
+
+      html += `<p><strong>Select Expected Grade:</strong><br>`;
+      grades.forEach(g => {
+        html += `
+          <label>
+            <input type="radio" name="grade${i}" value="${g}" ${g === defaultGrade ? 'checked' : ''}
+            onchange="updateSelectedGrade('${sub.name}', ${g})">
+            ${gradeLabels[g]}
+          </label> `;
+      });
+      html += `</p>`;
+    });
+
+    document.getElementById("result").innerHTML = html;
+    updateSGPA();
+  }
+
+  function updateSelectedGrade(subject, grade) {
+    selectedGrades[subject] = grade;
+    updateSGPA();
+  }
+
+  function updateSGPA() {
+    let totalCredits = 0;
+    let totalPoints = 0;
+
+    subjects.forEach(sub => {
+      const grade = selectedGrades[sub.name];
+      if (typeof grade === "number") {
+        totalPoints += grade * sub.credits;
+        totalCredits += sub.credits;
+      }
     });
 
     const sgpa = (totalPoints / totalCredits).toFixed(2);
-    html += `<h2>🎯 Predicted SGPA: ${sgpa}</h2>`;
-    document.getElementById("result").innerHTML = html;
+    const sgpaHTML = `<h2>🎯 Updated SGPA: ${sgpa}</h2>`;
+    document.getElementById("result").insertAdjacentHTML("beforeend", sgpaHTML);
+    document.getElementById("result").dataset.sgpa = sgpa;
+  }
 
+  function saveResult() {
     const name = localStorage.getItem("name");
     const semester = localStorage.getItem("semester");
-    if (name && semester) {
-      fetch("https://sgpa-backend-m676.onrender.com/save-history", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, semester, result: sgpa })
+    const result = document.getElementById("result").dataset.sgpa || "0.00";
+    if (!name || !semester || !result) return alert("Missing information");
+
+    fetch("https://sgpa-backend-m676.onrender.com/save-history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        semester,
+        result,
+        grades: selectedGrades
+      })
+    }).then(res => res.json())
+      .then(data => alert(data.message || "Saved!"))
+      .catch(err => alert("Error saving."));
+  }
+
+  function viewHistory() {
+    const name = localStorage.getItem("name");
+    if (!name) return alert("Login again.");
+    fetch(`https://sgpa-backend-m676.onrender.com/history/${name}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.history) return;
+        let html = "<h3>📜 Your History</h3><ul>";
+        data.history.forEach(h => {
+          const date = new Date(h.date).toLocaleString();
+          const gradeList = h.grades ? Object.entries(h.grades).map(([k, v]) => `${k}=${gradeLabels[v] || v}`).join(", ") : '';
+          html += `<li>${date} — SGPA: ${h.result}${gradeList ? `<br>📘 Grades: ${gradeList}` : ""}</li>`;
+        });
+        html += "</ul>";
+        document.getElementById("history").innerHTML = html;
       });
-    }
+  }
+
+  function clearHistory() {
+    const name = localStorage.getItem("name");
+    if (!name) return;
+    if (!confirm("Are you sure you want to clear your history?")) return;
+    fetch(`https://sgpa-backend-m676.onrender.com/history/${name}`, { method: "DELETE" })
+      .then(res => res.json())
+      .then(data => {
+        alert("History cleared.");
+        document.getElementById("history").innerHTML = "";
+      });
   }
 
   function clearInputs() {
     subjects.forEach((_, i) => document.getElementById(`sub${i}`).value = "");
     document.getElementById("result").innerHTML = "";
   }
-
-  function viewHistory() {
-    const name = localStorage.getItem("name");
-    if (!name) return alert("Please login again.");
-    fetch(`https://sgpa-backend-m676.onrender.com/history/${name}`)
-      .then(res => res.json())
-      .then(data => {
-        if (!data.history || data.history.length === 0) {
-          document.getElementById("history").innerHTML = "<p>No history found.</p>";
-          return;
-        }
-        let html = "<h3>Your SGPA History:</h3><ul style='list-style:none;padding:0'>";
-        data.history.forEach(entry => {
-          const date = new Date(entry.date).toLocaleString();
-          html += `<li>📅 ${date} — SGPA: <strong>${entry.result}</strong></li>`;
-        });
-        html += "</ul>";
-        document.getElementById("history").innerHTML = html;
-      })
-      .catch(err => {
-        console.error("History error:", err);
-        document.getElementById("history").innerHTML = "<p>Error loading history.</p>";
-      });
-  }
-
-  function clearHistory() {
-    const name = localStorage.getItem("name");
-    if (!name) return alert("Please login again.");
-    if (!confirm("Clear all your SGPA prediction history?")) return;
-    fetch(`https://sgpa-backend-m676.onrender.com/history/${name}`, {
-      method: "DELETE"
-    })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message || "History cleared.");
-        document.getElementById("history").innerHTML = "";
-      })
-      .catch(err => {
-        console.error("Clear error:", err);
-        alert("Could not clear history.");
-      });
-  }
-
-  createForm();
 </script>
 </body>
 </html>
