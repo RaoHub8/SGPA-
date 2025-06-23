@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 const SHEET_ID = '1G2JrpFBAuQTAN94SlhK1gPkpLMTw8rcQ4J-CdPJ-acs'; // Replace with yours
 const auth = new google.auth.GoogleAuth({
-  keyFile: 'google-sheets-key.json',
+  credentials: JSON.parse(process.env.GOOGLE_KEY),
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
