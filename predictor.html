@@ -151,7 +151,7 @@
       let defaultGrade = 0;
       for (let g of grades) {
         const req = calculateRequiredMarks(internal, g, sub.isHalf);
-        if (req !== -1 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 90))) {
+        if (req !== -1 && ((sub.isHalf && req <= 45) || (!sub.isHalf && req <= 86))) {
           defaultGrade = g;
           break;
         }
