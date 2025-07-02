@@ -20,6 +20,12 @@
       text-align: center;
       margin-bottom: 10px;
     }
+    h1 {
+  color: #ff914d;
+  text-shadow: 0 0 10px #ff914d, 0 0 20px #ff914d;
+  -webkit-box-reflect: below 2px linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2));
+}
+
     input, button {
       padding: 10px;
       margin: 10px;
@@ -27,6 +33,23 @@
       border: none;
       border-radius: 5px;
     }
+  input {
+  padding: 12px;
+  margin: 10px 0;
+  font-size: 1rem;
+  width: 250px;
+  border: none;
+  border-radius: 5px;
+  background: #333;
+  color: #f0f0f0;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  background: #444;
+  box-shadow: 0 0 8px rgba(0, 150, 255, 0.5);
+}
     button {
       background-color: #ff914d;
       color: #1e1e1e;
