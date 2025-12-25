@@ -1,76 +1,119 @@
-/* Styling for the login page */
+/* ===== Base Page ===== */
 body {
-  background: linear-gradient(135deg, #1e1e1e 0%, #2c2c2c 100%);
+  background: linear-gradient(135deg, #1e1e1e 0%, #2b2b2b 100%);
   color: #f0f0f0;
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
-  flex-direction: column;
 }
 
+/* ===== Container ===== */
+.container {
+  background: #262626;
+  padding: 30px;
+  border-radius: 12px;
+  width: 360px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(255, 165, 0, 0.15);
+}
+
+/* ===== Headings ===== */
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 2.2rem;
+  margin-bottom: 5px;
+  color: #ffa500; /* ORANGE like odd.html */
 }
 
 h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: #cccccc;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #ccc;
 }
 
-input {
+/* ===== Input ===== */
+input[type="text"] {
+  width: 90%;
   padding: 12px;
-  margin: 10px 0;
-  font-size: 1rem;
-  width: 250px;
-  border: none;
-  border-radius: 5px;
+  margin-bottom: 20px;
   background: #333;
-  color: #f0f0f0;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
 }
 
 input:focus {
   outline: none;
+  box-shadow: 0 0 8px rgba(255,165,0,0.6);
+}
+
+/* ===== Odd / Even Side by Side ===== */
+.semester-type {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.semester-type button {
+  flex: 1;
   background: #444;
-  box-shadow: 0 0 8px rgba(0, 150, 255, 0.5);
+  border: 2px solid #ffa500;
+  color: #ffa500;
 }
 
-button {
-  padding: 12px 20px;
-  margin: 10px 0;
-  font-size: 1rem;
-  width: 250px;
-  border: none;
-  border-radius: 5px;
-  background: #007bff;
-  color: #fff;
+.semester-type button:hover {
+  background: #ffa500;
+  color: #000;
+}
+
+/* ===== Semester Radio Section ===== */
+.sem-options {
+  margin-top: 15px;
+  text-align: left;
+}
+
+.sem-options label {
+  display: block;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #333;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: background 0.3s;
 }
 
-button:hover {
-  background: #0056b3;
-  transform: translateY(-2px);
+.sem-options label:hover {
+  background: #3f3f3f;
 }
 
-button:active {
-  transform: translateY(0);
+.sem-options input[type="radio"] {
+  accent-color: #ffa500;
+  margin-right: 10px;
 }
 
-@media (max-width: 600px) {
-  h1 {
-    font-size: 2rem;
+/* ===== Proceed Button ===== */
+.proceed-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #ffa500;
+  color: #000;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.proceed-btn:hover {
+  background: #ff8c00;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 500px) {
+  .container {
+    width: 90%;
   }
-  h2 {
-    font-size: 1.2rem;
-  }
-  input, button {
-    width: 80%;
-  }
-  
+}
