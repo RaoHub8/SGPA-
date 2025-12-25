@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>7th Sem SGPA Predictor</title>
+  <title>Odd Semester SGPA Predictor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="predictor.css">
 </head>
@@ -12,7 +12,7 @@
 <div class="page">
 
   <div class="top-bar">
-    <h1>7th Semester SGPA Predictor</h1>
+    <h1>Odd Semester SGPA Predictor</h1>
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -29,31 +29,68 @@
 
 </div>
 
-
 <script>
 /* ========= AUTH ========= */
 const name = localStorage.getItem("name");
 const semester = localStorage.getItem("semester");
 
-if (!name || semester !== "7") {
+if (!name || !["3","5","7"].includes(semester)) {
   window.location.href = "under_construction.html";
 }
 
 document.getElementById("userInfo").innerText =
   `👤 ${name} | Semester: ${semester}`;
 
-/* ========= SUBJECTS ========= */
-const subjects = [
-  { name: "Neural Networks and Deep Learning", credits: 4, isHalf: false },
-  { name: "Medical Imaging Techniques", credits: 3, isHalf: false },
-  { name: "Wearable Devices", credits: 3, isHalf: false },
-  { name: "Open Elective", credits: 3, isHalf: false },
-  { name: "Skill Enhancement Lab", credits: 3, isHalf: true },
-  { name: "AI in Healthcare Lab", credits: 1, isHalf: true }
-];
+/* ========= SUBJECT DATA ========= */
+const semesterSubjects = {
+
+  /* ===== SEM 3 ===== */
+  "3": [
+    { name: "Transform Techniques & Linear Programming", credits: 3, isHalf: false },
+    { name: "Signal Processing", credits: 3, isHalf: false },
+    { name: "Analog & Digital Electronic Circuits", credits: 3, isHalf: false },
+    { name: "Human Anatomy & Physiology", credits: 3, isHalf: false },
+    { name: "Object Oriented Programming", credits: 3, isHalf: false },
+
+    { name: "Universal Human Values", credits: 2, isHalf: false },
+
+    { name: "ADEC Lab", credits: 1, isHalf: true },
+    { name: "OOP Lab", credits: 1, isHalf: true },
+    { name: "AEC – Sensor Technology", credits: 1, isHalf: true }
+  ],
+
+  /* ===== SEM 5 ===== */
+  "5": [
+    { name: "Medical Physics", credits: 4, isHalf: false },
+
+    { name: "Digital Image Processing", credits: 3, isHalf: false },
+    { name: "Biomedical Instrumentation", credits: 3, isHalf: false },
+    { name: "Diagnostic & Therapeutic Equipment", credits: 3, isHalf: false },
+    { name: "Java / Python Programming", credits: 3, isHalf: false },
+    { name: "Research Methodology & IPR", credits: 3, isHalf: false },
+
+    { name: "Medical Physics Lab", credits: 1, isHalf: true },
+    { name: "Biomedical Instrumentation Lab", credits: 1, isHalf: true },
+    { name: "Safety of Biomedical Equipment", credits: 1, isHalf: true }
+  ],
+
+  /* ===== SEM 7 ===== */
+  "7": [
+    { name: "Neural Networks and Deep Learning", credits: 4, isHalf: false },
+
+    { name: "Medical Imaging Techniques", credits: 3, isHalf: false },
+    { name: "Wearable Devices", credits: 3, isHalf: false },
+    { name: "Open Elective", credits: 3, isHalf: false },
+    { name: "Skill Enhancement Lab", credits: 3, isHalf: true },
+
+    { name: "AI in Healthcare Lab", credits: 1, isHalf: true }
+  ]
+};
+
+const subjects = semesterSubjects[semester];
 
 /* ========= GRADING ========= */
-const grades = [10, 9, 8, 7, 6, 5, 0];
+const grades = [10,9,8,7,6,5,0];
 const gradeLabels = {10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
 const selectedGrades = {};
 
@@ -94,8 +131,8 @@ function predictGrades() {
 
     grades.forEach(g => {
       const r = calculateRequiredMarks(internal, g, sub.isHalf);
-      const cls = r === -1 ? "not-possible" :
-        (r <= (sub.isHalf ? 45 : 86) ? "realistic" : "possible");
+      const cls = r === -1 ? "not-possible"
+        : (r <= (sub.isHalf ? 45 : 86) ? "realistic" : "possible");
       html += `<td class="${cls}">${r === -1 ? "-" : r.toFixed(1)}</td>`;
     });
 
@@ -152,12 +189,7 @@ function saveResult(sgpa) {
   fetch("https://sgpa-backend-m676.onrender.com/save-history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      semester,
-      result: sgpa,
-      grades: selectedGrades
-    })
+    body: JSON.stringify({ name, semester, result: sgpa, grades: selectedGrades })
   });
 }
 
@@ -175,4 +207,3 @@ function logout() {
 
 </body>
 </html>
-
