@@ -185,11 +185,12 @@ function updateSGPA() {
       tp += selectedGrades[s.name] * s.credits;
     }
   });
-  const sgpa = (tp/tc).toFixed(2);
-  document.getElementById("result")
-    .insertAdjacentHTML("beforeend", `<h2>🎯 SGPA: ${sgpa}</h2>`);
-}
+  
+const sgpa = (tp / tc).toFixed(2);
+document.getElementById("result")
+  .insertAdjacentHTML("beforeend", `<h2>🎯 SGPA: ${sgpa}</h2>`);
 
+saveResult(sgpa);
 function clearInputs() {
   subjects.forEach((_,i)=>document.getElementById(`sub${i}`).value="");
   document.getElementById("result").innerHTML="";
@@ -198,6 +199,18 @@ function clearInputs() {
 function logout() {
   localStorage.clear();
   window.location.href = "index.html";
+}
+ function saveResult(sgpa) {
+  fetch("https://sgpa-backend-m676.onrender.com/save-history", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name,
+      semester: semester,
+      result: sgpa,
+      grades: selectedGrades
+    })
+  });
 }
 </script>
 
