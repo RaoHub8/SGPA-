@@ -9,21 +9,26 @@
 
 <body>
 
-<div class="top-bar">
-  <h1>7th Semester SGPA Predictor</h1>
-  <button onclick="logout()">Logout</button>
+<div class="page">
+
+  <div class="top-bar">
+    <h1>7th Semester SGPA Predictor</h1>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="info" id="userInfo"></div>
+
+  <div id="form" class="card"></div>
+
+  <div class="action-bar">
+    <button onclick="predictGrades()">Get Result</button>
+    <button onclick="clearInputs()">Clear</button>
+  </div>
+
+  <div id="result" class="card"></div>
+
 </div>
 
-<p class="info" id="userInfo"></p>
-
-<div id="form" class="container"></div>
-
-<div class="action-bar">
-  <button onclick="predictGrades()">Get Result</button>
-  <button onclick="clearInputs()">Clear</button>
-</div>
-
-<div id="result"></div>
 
 <script>
 /* ========= AUTH ========= */
