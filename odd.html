@@ -100,7 +100,7 @@ subjects.forEach((sub, i) => {
   const div = document.createElement("div");
   div.className = "subject-group";
   div.innerHTML = `
-    <label>${sub.name} (Internal Marks):</label>
+    <label>${sub.name} (${sub.credits} Credits) – Internal Marks:</label>
     <input type="number" id="sub${i}" min="0" max="50">
   `;
   form.appendChild(div);
