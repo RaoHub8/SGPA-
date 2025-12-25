@@ -1,4 +1,4 @@
-import express from 'express';
+ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import fs from 'fs';
@@ -35,7 +35,7 @@ async function appendToSheet(name, semester, sgpa, gradesObj) {
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
-    range: 'Sheet1!A:E',
+    range: 'Sheet2!A:E',
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [[new Date().toISOString(), name, semester, sgpa, gradeStr]]
