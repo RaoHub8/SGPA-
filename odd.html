@@ -137,31 +137,52 @@ function predictGrades() {
   let html = "";
 
   subjects.forEach((sub, i) => {
-    const internal = parseFloat(document.getElementById(`sub${i}`).value);
-    if (isNaN(internal)) return;
+  const internal = parseFloat(document.getElementById(`sub${i}`).value);
+  if (isNaN(internal)) return;
 
-    html += `</tr></table>`;
+  html += `<h3>${sub.name}</h3>`;
+  html += `<table class="output-table"><tr>`;
 
-    let def = 0;
-    for (let g of grades) {
-      const r = calculateRequiredMarks(internal, g, sub.isHalf);
-      if (r !== -1 && r <= (sub.isHalf ? 45 : 86)) { def = g; break; }
-    }
-
-    selectedGrades[sub.name] = def;
-
-    html += `<p><strong>Select Expected Grade:</strong><br>`;
-    grades.forEach(g => {
-      html += `
-        <label>
-          <input type="radio" name="g${i}" ${g===def?"checked":""}
-          onchange="updateSelectedGrade('${sub.name}',${g})">
-          ${gradeLabels[g]}
-        </label>
-      `;
-    });
-    html += `</p>`;
+  grades.forEach(g => {
+    html += `<th>${gradeLabels[g]}</th>`;
   });
+
+  html += `</tr><tr>`;
+
+  grades.forEach(g => {
+    const r = calculateRequiredMarks(internal, g, sub.isHalf);
+    const cls = r === -1
+      ? "not-possible"
+      : (r <= (sub.isHalf ? 45 : 86) ? "realistic" : "possible");
+
+    html += `<td class="${cls}">${r === -1 ? "-" : r.toFixed(1)}</td>`;
+  });
+
+  html += `</tr></table>`;
+
+  let def = 0;
+  for (let g of grades) {
+    const r = calculateRequiredMarks(internal, g, sub.isHalf);
+    if (r !== -1 && r <= (sub.isHalf ? 45 : 86)) {
+      def = g;
+      break;
+    }
+  }
+
+  selectedGrades[sub.name] = def;
+
+  html += `<p><strong>Select Expected Grade:</strong><br>`;
+  grades.forEach(g => {
+    html += `
+      <label>
+        <input type="radio" name="g${i}" ${g === def ? "checked" : ""}
+        onchange="updateSelectedGrade('${sub.name}', ${g})">
+        ${gradeLabels[g]}
+      </label>
+    `;
+  });
+  html += `</p>`;
+});
 
   document.getElementById("result").innerHTML = html;
   updateSGPA();
