@@ -2,127 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login | SGPA Predictor</title>
+  <title>SGPA Predictor Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #1e1e1e;
-      color: #fff;
+      color: #f0f0f0;
       font-family: Arial, sans-serif;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    h1, h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    h1 {
-  color: #ff914d;
+      align-items: center;
+      height: 100vh;
     }
 
-    input, button {
+    .container {
+      text-align: center;
+      background: #2a2a2a;
+      padding: 30px;
+      border-radius: 10px;
+      width: 320px;
+    }
+
+    input {
+      width: 90%;
       padding: 10px;
-      margin: 10px;
+      margin: 10px 0;
       font-size: 16px;
-      border: none;
-      border-radius: 5px;
     }
-  input {
-  padding: 12px;
-  margin: 10px 0;
-  font-size: 1rem;
-  width: 250px;
-  border: none;
-  border-radius: 5px;
-  background: #333;
-  color: #f0f0f0;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
 
-input:focus {
-  outline: none;
-  background: #444;
-  box-shadow: 0 0 8px rgba(0, 150, 255, 0.5);
-}
     button {
-      background-color: #ff914d;
-      color: #1e1e1e;
-      font-weight: bold;
+      padding: 10px 15px;
+      margin: 8px;
+      font-size: 15px;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
-    button:hover {
-      background-color: #ff7b26;
-    }
-    .footer {
-      margin-top: 40px;
-      font-size: 14px;
-      color: #aaa;
-      text-align: center;
-    }
-    .radio-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 10px 0;
-}
-    label {
-      font-weight: bold;
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>MEDICAL ELECTRONICS</h1>
-  <h2>Login to SGPA Predictor</h2>
 
-  <input type="text" id="name" placeholder="Enter your name" />
+<div class="container">
+  <h2>SGPA Predictor</h2>
 
-  <div class="radio-group">
-    <label><input type="radio" name="sem" value="6"> 6th Sem</label><br>
-    <label><input type="radio" name="sem" value="4"> 4th Sem</label><br>
-    <label><input type="radio" name="sem" value="2"> 2nd Sem</label>
+  <!-- Name input -->
+  <input type="text" id="name" placeholder="Enter your name">
+
+  <!-- Semester type buttons -->
+  <div>
+    <button onclick="showOdd()">Odd Semester</button>
+    <button onclick="showEven()">Even Semester</button>
   </div>
 
-  <button onclick="login()">Login</button>
+  <!-- Odd semester options -->
+  <div id="oddOptions" class="hidden">
+    <p>Select your semester</p>
+    <button onclick="selectSemester('1', 'odd')">1</button>
+    <button onclick="selectSemester('3', 'odd')">3</button>
+    <button onclick="selectSemester('5', 'odd')">5</button>
+    <button onclick="selectSemester('7', 'odd')">7</button>
+  </div>
 
-  <div class="footer">By Anoop Rao, Medical Electronics 6th Sem</div>
+  <!-- Even semester options -->
+  <div id="evenOptions" class="hidden">
+    <p>Select your semester</p>
+    <button onclick="selectSemester('2', 'even')">2</button>
+    <button onclick="selectSemester('4', 'even')">4</button>
+    <button onclick="selectSemester('6', 'even')">6</button>
+  </div>
+</div>
 
-  <script>
-    function login() {
-      const name = document.getElementById("name").value.trim();
-      const sem = document.querySelector('input[name="sem"]:checked')?.value;
+<script>
+function showOdd() {
+  document.getElementById("oddOptions").classList.remove("hidden");
+  document.getElementById("evenOptions").classList.add("hidden");
+}
 
-      if (!name || !sem) {
-        alert("Please enter your name and select semester.");
-        return;
-      }
+function showEven() {
+  document.getElementById("evenOptions").classList.remove("hidden");
+  document.getElementById("oddOptions").classList.add("hidden");
+}
 
-      fetch("https://sgpa-backend-m676.onrender.com/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, semester: sem })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.name || data.message === "Login successful") {
-          localStorage.setItem("name", name);
-          localStorage.setItem("semester", sem);
-          const pageMap = { "6": "predictor.html", "4": "predictor4.html", "2": "predictor2.html" };
-          window.location.href = pageMap[sem];
-        } else {
-          alert("Login failed");
-        }
-      })
-      .catch(err => {
-        console.error("Login error:", err);
-        alert("Server error. Please try again.");
-      });
-    }
-  </script>
+function selectSemester(sem, type) {
+  const name = document.getElementById("name").value.trim();
+
+  if (!name) {
+    alert("Please enter your name");
+    return;
+  }
+
+  localStorage.setItem("name", name);
+  localStorage.setItem("semester", sem);
+
+  if (type === "odd") {
+    window.location.href = "odd.html";
+  } else {
+    window.location.href = "even.html";
+  }
+}
+</script>
+
 </body>
 </html>
