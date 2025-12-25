@@ -51,22 +51,25 @@
 </head>
 <body> 
 
-<div class="top-bar">
-  <h1 id="title">Even Semester SGPA Predictor</h1>
-  <button onclick="logout()">Logout</button>
-</div> 
+<div class="page">
 
-<p class="info" id="userInfo"></p> 
+  <div class="top-bar">
+    <h1>Even Semester SGPA Predictor</h1>
+    <button onclick="logout()">Logout</button>
+  </div>
 
-<div id="form"></div> 
+  <div class="info" id="userInfo"></div>
 
-<button onclick="predictGrades()">Predict SGPA</button>
-<button onclick="clearInputs()">Clear Data</button>
-<button onclick="viewHistory()">📜 View History</button>
-<button onclick="clearHistory()">🧹 Clear History</button> 
+  <div id="form" class="card"></div>
 
-<div id="result"></div>
-<div id="history"></div> 
+  <div class="action-bar">
+    <button onclick="predictGrades()">Get Result</button>
+    <button onclick="clearInputs()">Clear</button>
+  </div>
+
+  <div id="result" class="card"></div>
+
+</div>
 
 <script>
 /* ===========================
