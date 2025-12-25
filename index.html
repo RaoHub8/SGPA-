@@ -1,67 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SGPA Predictor Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="index.css">
-  
+<meta charset="UTF-8">
+<title>SGPA Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at top, #2a1a00 0%, #0f0f0f 60%);
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+.container {
+  width: 380px;
+  padding: 35px;
+  border-radius: 14px;
+  background: #141414;
+  box-shadow: 0 0 30px rgba(255,140,0,0.5);
+  text-align: center;
+}
+
+h1 {
+  color: #ff9800;
+  text-shadow: 0 0 15px rgba(255,140,0,0.9);
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 20px 0;
+  border-radius: 8px;
+  border: none;
+  background: #111;
+  color: #fff;
+}
+
+.semester-type {
+  display: flex;
+  gap: 15px;
+}
+
+.semester-type button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px;
+  border: 2px solid #ff9800;
+  background: transparent;
+  color: #ff9800;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(255,140,0,0.6);
+}
+
+.semester-type button:hover {
+  background: #ff9800;
+  color: #000;
+}
+
+.sem-options {
+  margin-top: 20px;
+  display: none;
+  text-align: left;
+}
+
+.sem-options label {
+  display: block;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background: #1c1c1c;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255,140,0,0.4);
+}
+
+.sem-options input {
+  margin-right: 10px;
+  accent-color: #ff9800;
+}
+
+.proceed-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #ff9800, #ff6f00);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(255,140,0,0.9);
+}
+</style>
 </head>
+
 <body>
-
 <div class="container">
-  <h2>SGPA Predictor</h2>
+  <h1>SGPA Predictor</h1>
 
-  <!-- Name input -->
   <input type="text" id="name" placeholder="Enter your name">
 
-  <!-- Semester type buttons -->
-  <div>
-    <button onclick="showOdd()">Odd Semester</button>
-    <button onclick="showEven()">Even Semester</button>
+  <div class="semester-type">
+    <button onclick="showOdd()">ODD</button>
+    <button onclick="showEven()">EVEN</button>
   </div>
 
-  <!-- Odd semester options -->
-  <div id="oddOptions" class="hidden">
-    <p>Select your semester</p>
-    <button onclick="selectSemester('1', 'odd')">1</button>
-    <button onclick="selectSemester('3', 'odd')">3</button>
-    <button onclick="selectSemester('5', 'odd')">5</button>
-    <button onclick="selectSemester('7', 'odd')">7</button>
+  <!-- ODD -->
+  <div id="oddOptions" class="sem-options">
+    <label><input type="radio" name="sem" value="1"> 1st Semester</label>
+    <label><input type="radio" name="sem" value="3"> 3rd Semester</label>
+    <label><input type="radio" name="sem" value="5"> 5th Semester</label>
+    <label><input type="radio" name="sem" value="7"> 7th Semester</label>
   </div>
 
-  <!-- Even semester options -->
-  <div id="evenOptions" class="hidden">
-    <p>Select your semester</p>
-    <button onclick="selectSemester('2', 'even')">2</button>
-    <button onclick="selectSemester('4', 'even')">4</button>
-    <button onclick="selectSemester('6', 'even')">6</button>
+  <!-- EVEN -->
+  <div id="evenOptions" class="sem-options">
+    <label><input type="radio" name="sem" value="2"> 2nd Semester</label>
+    <label><input type="radio" name="sem" value="4"> 4th Semester</label>
+    <label><input type="radio" name="sem" value="6"> 6th Semester</label>
   </div>
+
+  <button class="proceed-btn" onclick="proceed()">Proceed</button>
 </div>
 
 <script>
 function showOdd() {
-  document.getElementById("oddOptions").classList.remove("hidden");
-  document.getElementById("evenOptions").classList.add("hidden");
+  document.getElementById("oddOptions").style.display = "block";
+  document.getElementById("evenOptions").style.display = "none";
 }
 
 function showEven() {
-  document.getElementById("evenOptions").classList.remove("hidden");
-  document.getElementById("oddOptions").classList.add("hidden");
+  document.getElementById("evenOptions").style.display = "block";
+  document.getElementById("oddOptions").style.display = "none";
 }
 
-function selectSemester(sem, type) {
+function proceed() {
   const name = document.getElementById("name").value.trim();
+  const sem = document.querySelector('input[name="sem"]:checked');
 
-  if (!name) {
-    alert("Please enter your name");
+  if (!name || !sem) {
+    alert("Enter name and select semester");
     return;
   }
 
   localStorage.setItem("name", name);
-  localStorage.setItem("semester", sem);
+  localStorage.setItem("semester", sem.value);
 
-  if (type === "odd") {
+  if (["1","3","5","7"].includes(sem.value)) {
     window.location.href = "odd.html";
   } else {
     window.location.href = "even.html";
@@ -71,5 +159,3 @@ function selectSemester(sem, type) {
 
 </body>
 </html>
-
-
