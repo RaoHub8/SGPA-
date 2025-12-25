@@ -27,6 +27,9 @@
 
   <div id="result" class="card"></div>
 
+<!-- ⚠️ Invalid Marks Warning -->
+<div id="warning" style="display:none; text-align:center; margin-top:20px;">
+  <img src="idiot_warning.png" style="max-width:90%; border-radius:12px;">
 </div>
 
 <script>
@@ -119,22 +122,23 @@ function predictGrades() {
   document.getElementById("result").innerHTML = "";
   Object.keys(selectedGrades).forEach(k => delete selectedGrades[k]);
 
+  // 🔥 HIDE WARNING FIRST
+  document.getElementById("warning").style.display = "none";
+
+  // 🔥 INVALID INTERNAL MARKS CHECK
+  for (let i = 0; i < subjects.length; i++) {
+    const val = parseFloat(document.getElementById(`sub${i}`).value);
+    if (!isNaN(val) && (val > 50 || val < 10)) {
+      document.getElementById("warning").style.display = "block";
+      return; // ⛔ STOP FUNCTION HERE
+    }
+  }
+
   let html = "";
 
   subjects.forEach((sub, i) => {
     const internal = parseFloat(document.getElementById(`sub${i}`).value);
     if (isNaN(internal)) return;
-
-    html += `<h3>${sub.name}</h3><table class="output-table"><tr>`;
-    grades.forEach(g => html += `<th>${gradeLabels[g]}</th>`);
-    html += `</tr><tr>`;
-
-    grades.forEach(g => {
-      const r = calculateRequiredMarks(internal, g, sub.isHalf);
-      const cls = r === -1 ? "not-possible"
-        : (r <= (sub.isHalf ? 45 : 86) ? "realistic" : "possible");
-      html += `<td class="${cls}">${r === -1 ? "-" : r.toFixed(1)}</td>`;
-    });
 
     html += `</tr></table>`;
 
