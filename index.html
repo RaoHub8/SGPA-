@@ -142,6 +142,25 @@ input[type="text"] {
   .owner-name { font-size: 0.9rem; }
   .owner-email { font-size: 0.8rem; }
 }
+  .credit {
+  position: fixed;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #aaa;
+  pointer-events: auto;
+}
+
+.credit a {
+  color: #ff6a00;
+  text-decoration: none;
+}
+
+.credit a:hover {
+  text-decoration: underline;
+}
+
 </style>
 </head>
 
@@ -176,11 +195,7 @@ input[type="text"] {
   <button class="proceed-btn" onclick="proceed()">Proceed</button>
 
   <!-- OWNER -->
-  <div class="owner">
-    <div class="owner-name">Anoop Rao</div>
-    <div class="owner-text">Write for suggestions at</div>
-    <div class="owner-email">anoopraochess@gmail.com</div>
-  </div>
+  
 
 </div>
 
@@ -217,3 +232,4 @@ function proceed() {
 
 </body>
   </html>
+
