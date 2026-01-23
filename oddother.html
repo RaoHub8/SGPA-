@@ -26,6 +26,9 @@
   <div id="result" class="card"></div>
 
 </div>
+<div id="warning" style="display:none; text-align:center; margin-top:20px;">
+  <img src="idiot_warning.png" style="max-width:90%; border-radius:12px;">
+</div>
 
 <script>
 const name = sessionStorage.getItem("name");
@@ -80,7 +83,7 @@ subjects.forEach((sub,i)=>{
   div.className="subject-group";
   div.innerHTML=`
    <label>${sub.name} (${sub.credits} Credits) – Internal Marks:</label>
-   <input type="number" id="sub${i}" min="0" max="50">
+  <input type="text" id="sub${i}" inputmode="numeric" pattern="[0-9]*">
   `;
   form.appendChild(div);
 });
@@ -95,10 +98,34 @@ function calculateRequiredMarks(internal,grade,isHalf){
   return (req<0||req>max)?-1:req;
 }
 
-function predictGrades(){
-  document.getElementById("result").innerHTML="";
-  Object.keys(selectedGrades).forEach(k=>delete selectedGrades[k]);
-  let html="";
+function predictGrades() {
+  document.getElementById("result").innerHTML = "";
+  Object.keys(selectedGrades).forEach(k => delete selectedGrades[k]);
+
+  // Hide warning first
+  document.getElementById("warning").style.display = "none";
+
+  // Validation check
+  for (let i = 0; i < subjects.length; i++) {
+    const valRaw = document.getElementById(`sub${i}`).value.trim();
+
+    if (valRaw === "") continue;
+
+    if (!/^\d+(\.\d+)?$/.test(valRaw)) {
+      document.getElementById("warning").style.display = "block";
+      return;
+    }
+
+    const val = parseFloat(valRaw);
+
+    if (val < 0 || val > 50) {
+      document.getElementById("warning").style.display = "block";
+      return;
+    }
+  }
+
+  // ✅ INITIALIZE html
+  let html = "";
 
   subjects.forEach((sub,i)=>{
     const internal=parseFloat(document.getElementById(`sub${i}`).value);
@@ -126,18 +153,19 @@ function predictGrades(){
     html+=`<p><strong>Select Expected Grade:</strong><br>`;
     grades.forEach(g=>{
       html+=`
-      <label>
-        <input type="radio" name="g${i}" ${g===def?"checked":""}
-        onchange="updateSelectedGrade('${sub.name}',${g})">
-        ${gradeLabels[g]}
-      </label>`;
+        <label>
+          <input type="radio" name="g${i}" ${g===def?"checked":""}
+          onchange="updateSelectedGrade('${sub.name}',${g})">
+          ${gradeLabels[g]}
+        </label>`;
     });
     html+=`</p>`;
   });
 
-  document.getElementById("result").innerHTML=html;
+  document.getElementById("result").innerHTML = html;
   updateSGPA();
 }
+
 
 function updateSelectedGrade(sub,g){
  selectedGrades[sub]=g;
