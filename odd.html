@@ -211,18 +211,18 @@ function updateSGPA() {
 
 /* ========= BACKEND ========= */
 function saveResult(sgpa) {
+  const usn = sessionStorage.getItem("usn");
+
   fetch("https://sgpa-backend-m676.onrender.com/save-history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    const usn = sessionStorage.getItem("usn");
-body: JSON.stringify({ 
-  name, 
-  usn,
-  semester, 
-  result: sgpa, 
-  grades: selectedGrades 
-})
-
+    body: JSON.stringify({ 
+      name, 
+      usn,
+      semester, 
+      result: sgpa, 
+      grades: selectedGrades 
+    })
   });
 }
 
