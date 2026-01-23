@@ -214,7 +214,15 @@ function saveResult(sgpa) {
   fetch("https://sgpa-backend-m676.onrender.com/save-history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, semester, result: sgpa, grades: selectedGrades })
+    const usn = sessionStorage.getItem("usn");
+body: JSON.stringify({ 
+  name, 
+  usn,
+  semester, 
+  result: sgpa, 
+  grades: selectedGrades 
+})
+
   });
 }
 
