@@ -223,8 +223,8 @@ function proceed() {
     return;
   }
 
-  localStorage.setItem("name", name);
-  localStorage.setItem("semester", sem.value);
+  sessionStorage.setItem("name", name);
+  sessionStorage.setItem("semester", sem.value);
 
   if (["1","3","5","7"].includes(sem.value)) {
     window.location.href = "odd.html";
@@ -236,5 +236,6 @@ function proceed() {
 
 </body>
   </html>
+
 
 
