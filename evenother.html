@@ -26,6 +26,9 @@
   <div id="result" class="card"></div>
 
 </div>
+<div id="warning" style="display:none; text-align:center; margin-top:20px;">
+  <img src="idiot_warning.png" style="max-width:90%; border-radius:12px;">
+</div>
 
 <script>
 const name=sessionStorage.getItem("name");
@@ -77,7 +80,7 @@ subjects.forEach((sub,i)=>{
  div.className="subject-group";
  div.innerHTML=`
   <label>${sub.name} (${sub.credits} Credits) – Internal Marks:</label>
-  <input type="number" id="sub${i}" min="0" max="50">
+  <input type="text" id="sub${i}" inputmode="numeric" pattern="[0-9]*">
  `;
  form.appendChild(div);
 });
@@ -92,48 +95,72 @@ function calculateRequiredMarks(internal,grade,isHalf){
  return (req<0||req>max)?-1:req;
 }
 
-function predictGrades(){
- document.getElementById("result").innerHTML="";
- Object.keys(selectedGrades).forEach(k=>delete selectedGrades[k]);
- let html="";
+function predictGrades() {
+  document.getElementById("result").innerHTML = "";
+  Object.keys(selectedGrades).forEach(k => delete selectedGrades[k]);
 
- subjects.forEach((sub,i)=>{
-  const internal=parseFloat(document.getElementById(`sub${i}`).value);
-  if(isNaN(internal)) return;
+  // Hide warning first
+  document.getElementById("warning").style.display = "none";
 
-  html+=`<h3>${sub.name}</h3><table class="output-table"><tr>`;
-  grades.forEach(g=>html+=`<th>${gradeLabels[g]}</th>`);
-  html+=`</tr><tr>`;
+  // Validation check
+  for (let i = 0; i < subjects.length; i++) {
+    const valRaw = document.getElementById(`sub${i}`).value.trim();
 
-  grades.forEach(g=>{
-   const r=calculateRequiredMarks(internal,g,sub.isHalf);
-   const cls=r===-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
-   html+=`<td class="${cls}">${r===-1?"-":r.toFixed(1)}</td>`;
-  });
+    if (valRaw === "") continue;
 
-  html+=`</tr></table>`;
+    if (!/^\d+(\.\d+)?$/.test(valRaw)) {
+      document.getElementById("warning").style.display = "block";
+      return;
+    }
 
-  let def=0;
-  for(let g of grades){
-   const r=calculateRequiredMarks(internal,g,sub.isHalf);
-   if(r!==-1 && r<=(sub.isHalf?45:86)){def=g;break;}
+    const val = parseFloat(valRaw);
+
+    if (val < 0 || val > 50) {
+      document.getElementById("warning").style.display = "block";
+      return;
+    }
   }
-  selectedGrades[sub.name]=def;
 
-  html+=`<p><strong>Select Expected Grade:</strong><br>`;
-  grades.forEach(g=>{
-   html+=`
-   <label>
-    <input type="radio" name="g${i}" ${g===def?"checked":""}
-    onchange="updateSelectedGrade('${sub.name}',${g})">
-    ${gradeLabels[g]}
-   </label>`;
+  // ✅ INITIALIZE html
+  let html = "";
+
+  subjects.forEach((sub,i)=>{
+    const internal=parseFloat(document.getElementById(`sub${i}`).value);
+    if(isNaN(internal)) return;
+
+    html+=`<h3>${sub.name}</h3><table class="output-table"><tr>`;
+    grades.forEach(g=>html+=`<th>${gradeLabels[g]}</th>`);
+    html+=`</tr><tr>`;
+
+    grades.forEach(g=>{
+      const r=calculateRequiredMarks(internal,g,sub.isHalf);
+      const cls=r===-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
+      html+=`<td class="${cls}">${r===-1?"-":r.toFixed(1)}</td>`;
+    });
+
+    html+=`</tr></table>`;
+
+    let def=0;
+    for(let g of grades){
+      const r=calculateRequiredMarks(internal,g,sub.isHalf);
+      if(r!==-1 && r<=(sub.isHalf?45:86)){def=g;break;}
+    }
+    selectedGrades[sub.name]=def;
+
+    html+=`<p><strong>Select Expected Grade:</strong><br>`;
+    grades.forEach(g=>{
+      html+=`
+        <label>
+          <input type="radio" name="g${i}" ${g===def?"checked":""}
+          onchange="updateSelectedGrade('${sub.name}',${g})">
+          ${gradeLabels[g]}
+        </label>`;
+    });
+    html+=`</p>`;
   });
-  html+=`</p>`;
- });
 
- document.getElementById("result").innerHTML=html;
- updateSGPA();
+  document.getElementById("result").innerHTML = html;
+  updateSGPA();
 }
 
 function updateSelectedGrade(sub,g){
