@@ -170,7 +170,8 @@ input[type="text"] {
 
   <h1>SGPA Predictor</h1>
 
-  <input type="text" id="name" placeholder="Enter your name">
+  <input type="text" id="name" placeholder="Enter your Name">
+  <input type="text" id="usn" placeholder="Enter your USN ">
 
   <div class="semester-type">
     <button onclick="showOdd()">ODD</button>
@@ -216,26 +217,48 @@ function showEven() {
 
 function proceed() {
   const name = document.getElementById("name").value.trim();
+  const usn = document.getElementById("usn").value.trim();
   const sem = document.querySelector('input[name="sem"]:checked');
 
   if (!name || !sem) {
-    alert("Enter your name and select semester");
+    alert("Please enter Name and select Semester");
     return;
   }
 
-  sessionStorage.setItem("name", name);
+  // Store Name + USN together
+  const displayName = usn ? `${name} (${usn.toUpperCase()})` : name;
+
+  sessionStorage.setItem("name", displayName);
   sessionStorage.setItem("semester", sem.value);
 
-  if (["1","3","5","7"].includes(sem.value)) {
-    window.location.href = "odd.html";
-  } else {
-    window.location.href = "even.html";
+  // 🔍 Extract department from USN if entered
+  let dept = "";
+  if (usn) {
+    const match = usn.toUpperCase().match(/^[0-9A-Z]{5}([A-Z]{2})[0-9]{3}$/);
+    if (match) dept = match[1];
+  }
+
+  // ---- Routing ----
+  if (dept === "MD") {
+    // Medical Electronics
+    if (["1","3","5","7"].includes(sem.value))
+      window.location.href = "odd.html";
+    else
+      window.location.href = "even.html";
+  }
+  else {
+    // Other departments
+    if (["3","5","7"].includes(sem.value))
+      window.location.href = "oddother.html";
+    else
+      window.location.href = "evenother.html"; 
   }
 }
 </script>
 
 </body>
   </html>
+
 
 
 
