@@ -6,12 +6,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link rel="stylesheet" href="predictor.css">
 </head>
-
 <body>
+
 <div class="page">
 
   <div class="top-bar">
-    <h1 id="title">Odd Semester SGPA Predictor</h1>
+    <h1>Odd Semester SGPA Predictor</h1>
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -24,12 +24,12 @@
   </div>
 
   <div id="result" class="card"></div>
+
 </div>
 
 <script>
 const name = sessionStorage.getItem("name");
 const semester = sessionStorage.getItem("semester");
-const usn = sessionStorage.getItem("usn");
 
 if (!name || !["3","5","7"].includes(semester)) {
   window.location.href = "index.html";
@@ -37,41 +37,56 @@ if (!name || !["3","5","7"].includes(semester)) {
 
 document.getElementById("userInfo").innerText =
 `👤 ${name} | Semester: ${semester}`;
-document.getElementById("title").innerText =
-`${semester}th Semester SGPA Predictor`;
 
-/* ==== CREDIT PATTERNS ==== */
-const creditPattern = {
+/* ===== CREDIT + isHalf PATTERN ===== */
+
+const semesterPattern = {
   "3": [4,3,3,3,3,2,1,1,1],
   "5": [4,3,3,3,3,3,1,1,1],
   "7": [4,3,3,3,2,1]
 };
 
-/* ==== isHalf mapping ==== */
-const subjects = creditPattern[semester].map((c,i)=>({
-  name: `${c} Credit Subject ${i+1}`,
+const isHalfRule = {
+  "3": [false,false,false,false,false,true,true,true,true],
+  "5": [false,false,false,false,false,false,true,true,true],
+  "7": [false,false,false,false,true,true]
+};
+
+/* ===== COMMON SUBJECT NAMES ===== */
+
+const commonNames = {
+  "3": ["4 Credit Subject 1","Mathematics","3 Credit Subject 3","3 Credit Subject 4","3 Credit Subject 5","Universal Human Values","1 Credit Lab 1","1 Credit Lab 2","AEC"],
+  "5": ["4 Credit Subject","3 Credit Subject 2","3 Credit Subject 3","3 Credit Subject 4","3 Credit Subject 5","RMIPR","1 Credit Lab 1","1 Credit Lab 2","AEC"],
+  "7": ["4 Credit Subject","3 Credit Subject 2","3 Credit Subject 3","3 Credit Subject 4","2 Credit Subject","1 Credit Lab"]
+};
+
+const subjects = semesterPattern[semester].map((c,i)=>({
+  name: commonNames[semester][i],
   credits: c,
-  isHalf: (c === 1 || c === 2)   // 1 and 2 credit are half
+  isHalf: isHalfRule[semester][i]
 }));
 
-/* ==== GRADING ==== */
+/* ===== GRADING ===== */
+
 const grades=[10,9,8,7,6,5,0];
 const gradeLabels={10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
 const selectedGrades={};
 
-/* ==== BUILD FORM ==== */
+/* ===== BUILD FORM ===== */
+
 const form=document.getElementById("form");
 subjects.forEach((sub,i)=>{
   const div=document.createElement("div");
   div.className="subject-group";
   div.innerHTML=`
-   <label>${sub.name} (Internal Marks)</label>
+   <label>${sub.name} (${sub.credits} Credits) – Internal Marks:</label>
    <input type="number" id="sub${i}" min="0" max="50">
   `;
   form.appendChild(div);
 });
 
-/* ==== CORE LOGIC ==== */
+/* ===== CORE LOGIC ===== */
+
 function calculateRequiredMarks(internal,grade,isHalf){
   const lower={10:90,9:80,8:70,7:60,6:50,5:40}[grade];
   if(!lower) return -1;
@@ -95,10 +110,10 @@ function predictGrades(){
 
     grades.forEach(g=>{
       const r=calculateRequiredMarks(internal,g,sub.isHalf);
-      const cls=r===-1?"not-possible":
-        (r<=(sub.isHalf?45:86)?"realistic":"possible");
+      const cls=r===-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
       html+=`<td class="${cls}">${r===-1?"-":r.toFixed(1)}</td>`;
     });
+
     html+=`</tr></table>`;
 
     let def=0;
@@ -125,30 +140,29 @@ function predictGrades(){
 }
 
 function updateSelectedGrade(sub,g){
-  selectedGrades[sub]=g;
-  updateSGPA();
+ selectedGrades[sub]=g;
+ updateSGPA();
 }
 
 function updateSGPA(){
-  let tc=0,tp=0;
-  subjects.forEach(s=>{
-    if(selectedGrades[s.name]!=undefined){
-      tc+=s.credits;
-      tp+=selectedGrades[s.name]*s.credits;
-    }
-  });
-  const sgpa=(tp/tc).toFixed(2);
-  document.getElementById("result")
-   .insertAdjacentHTML("beforeend",`<h2>🎯 SGPA: ${sgpa}</h2>`);
-  saveResult(sgpa);
+ let tc=0,tp=0;
+ subjects.forEach(s=>{
+  if(selectedGrades[s.name]!=undefined){
+    tc+=s.credits;
+    tp+=selectedGrades[s.name]*s.credits;
+  }
+ });
+ const sgpa=(tp/tc).toFixed(2);
+ document.getElementById("result").insertAdjacentHTML("beforeend",`<h2>🎯 SGPA: ${sgpa}</h2>`);
+ saveResult(sgpa);
 }
 
-/* ==== SAVE TO BACKEND ==== */
+/* ===== SAVE ===== */
 function saveResult(sgpa){
  fetch("https://sgpa-backend-m676.onrender.com/save-history",{
   method:"POST",
   headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({name,usn,semester,result:sgpa,grades:selectedGrades})
+  body:JSON.stringify({name,semester,result:sgpa,grades:selectedGrades})
  });
 }
 
