@@ -31,6 +31,7 @@
 <script>
 /* ===== AUTH ===== */
 const name = sessionStorage.getItem("name");
+const usn = sessionStorage.getItem("usn");
 const semester = sessionStorage.getItem("semester");
 
 if (!name || !["3","5","7"].includes(semester)) {
@@ -38,7 +39,7 @@ if (!name || !["3","5","7"].includes(semester)) {
 }
 
 document.getElementById("userInfo").innerText =
-  `👤 ${name} | Semester: ${semester}`;
+  `👤 ${name} | ${usn} | Semester: ${semester}`;
 document.getElementById("title").innerText =
   `${semester}th Semester SGPA Predictor`;
 
@@ -142,6 +143,18 @@ function updateSGPA(){
   const sgpa=(tp/tc).toFixed(2);
   document.getElementById("result")
     .insertAdjacentHTML("beforeend",`<h2>🎯 SGPA: ${sgpa}</h2>`);
+  saveResult(sgpa);
+}
+
+/* ===== SAVE TO BACKEND ===== */
+function saveResult(sgpa){
+  fetch("https://sgpa-backend-m676.onrender.com/save-history",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name, usn, semester, result:sgpa, grades:selectedGrades
+    })
+  });
 }
 
 /* ===== UTIL ===== */
