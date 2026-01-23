@@ -23,7 +23,7 @@ if (fs.existsSync(historyFile)) {
   users = JSON.parse(fs.readFileSync(historyFile));
 }
 
-async function appendToSheet(name, semester, sgpa, gradesObj) {
+async function appendToSheet(name, usn, semester, sgpa, gradesObj) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
 
@@ -35,10 +35,10 @@ async function appendToSheet(name, semester, sgpa, gradesObj) {
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
-    range: 'Sheet2!A:E',
+    range: 'Sheet2!A:F',
     valueInputOption: 'USER_ENTERED',
     requestBody: {
-      values: [[new Date().toISOString(), name, semester, sgpa, gradeStr]]
+      values: [[new Date().toISOString(), name, usn || "", semester, sgpa, gradeStr]]
     },
   });
 }
@@ -51,8 +51,10 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/save-history', async (req, res) => {
-  const { name, semester, result, grades } = req.body;
-  if (!name || !result || !semester) return res.status(400).json({ error: 'Missing parameters' });
+  const { name, usn, semester, result, grades } = req.body;
+
+  if (!name || !semester || !result)
+    return res.status(400).json({ error: 'Missing parameters' });
 
   if (!users[name]) users[name] = { semester, history: [] };
   users[name].history.push({ date: new Date(), semester, result, grades });
@@ -60,7 +62,7 @@ app.post('/save-history', async (req, res) => {
   fs.writeFileSync(historyFile, JSON.stringify(users, null, 2));
 
   try {
-    await appendToSheet(name, semester, result, grades);
+    await appendToSheet(name, usn, semester, result, grades);
     res.status(200).json({ message: 'History saved and exported to Google Sheets' });
   } catch (err) {
     console.error("❌ Google Sheets API error:", err);
