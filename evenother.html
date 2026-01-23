@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SGPA Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="predictor.css">
+</head>
+
+<body>
+<div class="page">
+
+  <div class="top-bar">
+    <h1 id="title">SGPA Predictor</h1>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="info" id="userInfo"></div>
+
+  <div id="form" class="card"></div>
+
+  <div class="action-bar">
+    <button onclick="predictGrades()">Get Result</button>
+    <button onclick="clearInputs()">Clear</button>
+  </div>
+
+  <div id="result" class="card"></div>
+
+</div>
+
+<script>
+/* ===== AUTH ===== */
+const name = sessionStorage.getItem("name");
+const usn = sessionStorage.getItem("usn");
+const semester = sessionStorage.getItem("semester");
+
+if (!name || !["2","4","6"].includes(semester)) {
+  window.location.href = "index.html";
+}
+
+document.getElementById("userInfo").innerText =
+  `👤 ${name} | ${usn} | Semester: ${semester}`;
+document.getElementById("title").innerText =
+  `${semester}th Semester SGPA Predictor`;
+
+/* ===== CREDIT PATTERNS ===== */
+const creditPattern = {
+  "2": [4,3,3,3,3,1,1,1,1],
+  "4": [4,3,3,3,3,1,1,1,1],
+  "6": [4,4,3,3,3,3,1,1]
+};
+
+const subjects = creditPattern[semester].map((c,i)=>({
+  name: `${c} Credit Subject ${i+1}`,
+  credits: c,
+  isHalf: (c === 1)
+}));
+
+/* ===== GRADING ===== */
+const grades = [10,9,8,7,6,5,0];
+const gradeLabels = {10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
+const selectedGrades = {};
+
+/* ===== BUILD FORM ===== */
+const form = document.getElementById("form");
+subjects.forEach((sub,i)=>{
+  const div=document.createElement("div");
+  div.className="subject-group";
+  div.innerHTML=`
+    <label>${sub.name} (Internal Marks):</label>
+    <input type="number" id="sub${i}" min="0" max="50">
+  `;
+  form.appendChild(div);
+});
+
+/* ===== CORE LOGIC ===== */
+function calculateRequiredMarks(internal, grade, isHalf){
+  const lower={10:90,9:80,8:70,7:60,6:50,5:40}[grade];
+  if(!lower) return -1;
+  const req=isHalf?(lower-internal):2*(lower-internal);
+  const max=isHalf?50:100;
+  return (req<0||req>max)?-1:req;
+}
+
+function predictGrades(){
+  document.getElementById("result").innerHTML="";
+  Object.keys(selectedGrades).forEach(k=>delete selectedGrades[k]);
+  let html="";
+
+  subjects.forEach((sub,i)=>{
+    const internal=parseFloat(document.getElementById(`sub${i}`).value);
+    if(isNaN(internal)) return;
+
+    html+=`<h3>${sub.name}</h3><table class="output-table"><tr>`;
+    grades.forEach(g=>html+=`<th>${gradeLabels[g]}</th>`);
+    html+=`</tr><tr>`;
+
+    grades.forEach(g=>{
+      const r=calculateRequiredMarks(internal,g,sub.isHalf);
+      const cls=r===-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
+      html+=`<td class="${cls}">${r===-1?"-":r.toFixed(1)}</td>`;
+    });
+    html+=`</tr></table>`;
+
+    let def=0;
+    for(let g of grades){
+      const r=calculateRequiredMarks(internal,g,sub.isHalf);
+      if(r!==-1 && r<=(sub.isHalf?45:86)){def=g;break;}
+    }
+    selectedGrades[sub.name]=def;
+
+    html+=`<p><strong>Select Expected Grade:</strong><br>`;
+    grades.forEach(g=>{
+      html+=`
+        <label>
+          <input type="radio" name="g${i}" ${g===def?"checked":""}
+          onchange="updateSelectedGrade('${sub.name}',${g})">
+          ${gradeLabels[g]}
+        </label>
+      `;
+    });
+    html+=`</p>`;
+  });
+
+  document.getElementById("result").innerHTML=html;
+  updateSGPA();
+}
+
+function updateSelectedGrade(sub,g){
+  selectedGrades[sub]=g;
+  updateSGPA();
+}
+
+function updateSGPA(){
+  let tc=0,tp=0;
+  subjects.forEach(s=>{
+    if(selectedGrades[s.name]!==undefined){
+      tc+=s.credits;
+      tp+=selectedGrades[s.name]*s.credits;
+    }
+  });
+  const sgpa=(tp/tc).toFixed(2);
+  document.getElementById("result")
+    .insertAdjacentHTML("beforeend",`<h2>🎯 SGPA: ${sgpa}</h2>`);
+  saveResult(sgpa);
+}
+
+/* ===== SAVE ===== */
+function saveResult(sgpa){
+  fetch("https://sgpa-backend-m676.onrender.com/save-history",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name, usn, semester, result:sgpa, grades:selectedGrades
+    })
+  });
+}
+
+/* ===== UTIL ===== */
+function clearInputs(){
+  subjects.forEach((_,i)=>document.getElementById(`sub${i}`).value="");
+  document.getElementById("result").innerHTML="";
+}
+
+function logout(){
+  sessionStorage.clear();
+  window.location.href="index.html";
+}
+</script>
+</body>
+</html>
