@@ -34,8 +34,8 @@
 
 <script>
 /* ========= AUTH ========= */
-const name = localStorage.getItem("name");
-const semester = localStorage.getItem("semester");
+const name = sessionStorage.getItem("name");
+const semester = sessionStorage.getItem("semester");
 
 if (!name || !["3","5","7"].includes(semester)) {
   window.location.href = "under_construction.html";
@@ -225,7 +225,7 @@ function clearInputs() {
 }
 
 function logout() {
-  localStorage.clear();
+  sessionStorage.clear();
   window.location.href = "index.html";
 }
 </script>
