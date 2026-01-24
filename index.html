@@ -262,6 +262,15 @@ input[type="text"] {
 </div>
 
 <script>
+  // Show popup on page load
+window.onload = function() {
+  document.getElementById("instructionPopup").style.display = "flex";
+};
+
+function closePopup() {
+  document.getElementById("instructionPopup").style.display = "none";
+}
+
 function showOdd() {
   document.getElementById("oddOptions").style.display = "block";
   document.getElementById("evenOptions").style.display = "none";
@@ -310,6 +319,7 @@ function proceed() {
 
 </body>
   </html>
+
 
 
 
