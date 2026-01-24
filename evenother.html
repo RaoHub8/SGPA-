@@ -1,91 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Even Semester SGPA Predictor</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Even Semester SGPA</title>
 <link rel="stylesheet" href="predictor.css">
 </head>
 <body>
 
 <div class="page">
-
-  <div class="top-bar">
-    <h1>Even Semester SGPA Predictor</h1>
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <div class="info" id="userInfo"></div>
-  <div id="form" class="card"></div>
-
-  <div class="action-bar">
-    <button onclick="predictGrades()">Get Result</button>
-    <button onclick="clearInputs()">Clear</button>
-  </div>
-
-  <div id="result" class="card"></div>
-
+<div class="top-bar">
+<h1>Even Semester SGPA Predictor</h1>
+<button onclick="logout()">Logout</button>
 </div>
-<div id="warning" style="display:none; text-align:center; margin-top:20px;">
-  <img src="idiot_warning.png" style="max-width:90%; border-radius:12px;">
+
+<div class="info" id="userInfo"></div>
+<div id="form" class="card"></div>
+
+<div class="action-bar">
+<button onclick="predictGrades()">Get Result</button>
+<button onclick="clearInputs()">Clear</button>
+</div>
+
+<div id="result" class="card"></div>
+
+<div id="warning" style="display:none;text-align:center;">
+<img src="idiot_warning.png" style="max-width:90%;border-radius:10px;">
+</div>
 </div>
 
 <script>
 const name=sessionStorage.getItem("name");
+const usn=sessionStorage.getItem("usn");
 const semester=sessionStorage.getItem("semester");
+if(!name || !["2","4","6"].includes(semester)) location.href="index.html";
+document.getElementById("userInfo").innerText=`👤 ${name} (${usn}) | Sem ${semester}`;
 
-if(!name || !["4","6"].includes(semester)){
- window.location.href="index.html";
-}
-
-document.getElementById("userInfo").innerText=
-`👤 ${name} | Semester: ${semester}`;
-
-/* ===== CREDIT + isHalf PATTERN ===== */
-
-const semesterPattern={
- "4":[4,3,3,3,3,1,1,1],
- "6":[4,4,3,3,3,3,1,1]
+/* ===== GENERIC CREDIT PATTERN EVEN ===== */
+const semesterCredits={
+"2":[4,4,3,3,1,1,1,1,2],
+"4":[4,3,3,3,3,1,1,1],
+"6":[4,4,3,3,3,3,1,1]
 };
 
-const isHalfRule={
- "4":[false,false,false,false,false,true,true,true],
- "6":[false,true,false,false,false,false,true,true]
-};
-
-/* ===== COMMON SUBJECT NAMES ===== */
-
-const commonNames={
- "4":["4 Credit Subject","Mathematics","3 Credit Subject 3","3 Credit Subject 4","3 Credit Subject 5","AEC","1 Credit Lab 1","1 Credit Lab 2"],
- "6":["4 Credit Subject","Mini Project","3 Credit Subject 3","3 Credit Subject 4","3 Credit Subject 5","Open Elective","1 Credit Lab 1","1 Credit Lab 2"]
-};
-
-const subjects=semesterPattern[semester].map((c,i)=>({
- name: commonNames[semester][i],
+const subjects=semesterCredits[semester].map((c,i)=>({
+ name:`${c} Credit Subject ${i+1}`,
  credits:c,
- isHalf:isHalfRule[semester][i]
+ isHalf:(c<=2)
 }));
 
-/* ===== GRADING ===== */
-
+/* ===== COMMON LOGIC ===== */
 const grades=[10,9,8,7,6,5,0];
 const gradeLabels={10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
-const selectedGrades={};
-
-/* ===== BUILD FORM ===== */
 
 const form=document.getElementById("form");
-subjects.forEach((sub,i)=>{
- const div=document.createElement("div");
- div.className="subject-group";
- div.innerHTML=`
-  <label>${sub.name} (${sub.credits} Credits) – Internal Marks:</label>
-  <input type="text" id="sub${i}" inputmode="numeric" pattern="[0-9]*">
- `;
- form.appendChild(div);
+subjects.forEach((s,i)=>{
+ form.innerHTML+=`
+ <div class="subject-group">
+ <label>${s.name} :</label>
+ <input type="text" id="sub${i}">
+ </div>`;
 });
-
-/* ===== CORE LOGIC ===== */
 
 function calculateRequiredMarks(internal,grade,isHalf){
  const lower={10:90,9:80,8:70,7:60,6:50,5:40}[grade];
@@ -95,110 +68,61 @@ function calculateRequiredMarks(internal,grade,isHalf){
  return (req<0||req>max)?-1:req;
 }
 
-function predictGrades() {
-  document.getElementById("result").innerHTML = "";
-  Object.keys(selectedGrades).forEach(k => delete selectedGrades[k]);
+function predictGrades(){
+ document.getElementById("result").innerHTML="";
+ document.getElementById("warning").style.display="none";
 
-  // Hide warning first
-  document.getElementById("warning").style.display = "none";
+ for(let i=0;i<subjects.length;i++){
+  const raw=document.getElementById(`sub${i}`).value.trim();
+  if(raw==="") continue;
+  if(!/^\d+$/.test(raw)) return showWarning();
+  const v=parseInt(raw);
+  if(v<0||v>50) return showWarning();
+ }
 
-  // Validation check
-  for (let i = 0; i < subjects.length; i++) {
-    const valRaw = document.getElementById(`sub${i}`).value.trim();
+ let html="";
+ let tc=0,tp=0;
 
-    if (valRaw === "") continue;
+ subjects.forEach((sub,i)=>{
+  const internal=parseInt(document.getElementById(`sub${i}`).value);
+  if(isNaN(internal)) return;
 
-    if (!/^\d+(\.\d+)?$/.test(valRaw)) {
-      document.getElementById("warning").style.display = "block";
-      return;
-    }
+  html+=`<h3>${sub.name}</h3><table class="output-table"><tr>`;
+  grades.forEach(g=>html+=`<th>${gradeLabels[g]}</th>`);
+  html+=`</tr><tr>`;
 
-    const val = parseFloat(valRaw);
-
-    if (val < 0 || val > 50) {
-      document.getElementById("warning").style.display = "block";
-      return;
-    }
-  }
-
-  // ✅ INITIALIZE html
-  let html = "";
-
-  subjects.forEach((sub,i)=>{
-    const internal=parseFloat(document.getElementById(`sub${i}`).value);
-    if(isNaN(internal)) return;
-
-    html+=`<h3>${sub.name}</h3><table class="output-table"><tr>`;
-    grades.forEach(g=>html+=`<th>${gradeLabels[g]}</th>`);
-    html+=`</tr><tr>`;
-
-    grades.forEach(g=>{
-      const r=calculateRequiredMarks(internal,g,sub.isHalf);
-      const cls=r===-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
-      html+=`<td class="${cls}">${r===-1?"-":r.toFixed(1)}</td>`;
-    });
-
-    html+=`</tr></table>`;
-
-    let def=0;
-    for(let g of grades){
-      const r=calculateRequiredMarks(internal,g,sub.isHalf);
-      if(r!==-1 && r<=(sub.isHalf?45:86)){def=g;break;}
-    }
-    selectedGrades[sub.name]=def;
-
-    html+=`<p><strong>Select Expected Grade:</strong><br>`;
-    grades.forEach(g=>{
-      html+=`
-        <label>
-          <input type="radio" name="g${i}" ${g===def?"checked":""}
-          onchange="updateSelectedGrade('${sub.name}',${g})">
-          ${gradeLabels[g]}
-        </label>`;
-    });
-    html+=`</p>`;
+  let bestGrade=0;
+  grades.forEach(g=>{
+   const r=calculateRequiredMarks(internal,g,sub.isHalf);
+   const cls=r==-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
+   html+=`<td class="${cls}">${r==-1?"-":r}</td>`;
+   if(bestGrade===0 && r!==-1 && r<=(sub.isHalf?45:86)) bestGrade=g;
   });
 
-  document.getElementById("result").innerHTML = html;
-  updateSGPA();
-}
-
-function updateSelectedGrade(sub,g){
- selectedGrades[sub]=g;
- updateSGPA();
-}
-
-function updateSGPA(){
- let tc=0,tp=0;
- subjects.forEach(s=>{
-  if(selectedGrades[s.name]!=undefined){
-    tc+=s.credits;
-    tp+=selectedGrades[s.name]*s.credits;
-  }
+  html+=`</tr></table>`;
+  tc+=sub.credits;
+  tp+=bestGrade*sub.credits;
  });
+
  const sgpa=(tp/tc).toFixed(2);
- document.getElementById("result").insertAdjacentHTML("beforeend",`<h2>🎯 SGPA: ${sgpa}</h2>`);
+ document.getElementById("result").innerHTML=html+`<h2>🎯 SGPA: ${sgpa}</h2>`;
  saveResult(sgpa);
 }
 
-/* ===== SAVE ===== */
+function showWarning(){
+ document.getElementById("warning").style.display="block";
+}
+
 function saveResult(sgpa){
  fetch("https://sgpa-backend-m676.onrender.com/save-history",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({name,semester,result:sgpa,grades:selectedGrades})
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({name,usn,semester,result:sgpa})
  });
 }
 
-function clearInputs(){
- subjects.forEach((_,i)=>document.getElementById(`sub${i}`).value="");
- document.getElementById("result").innerHTML="";
-}
-
-function logout(){
- sessionStorage.clear();
- window.location.href="index.html";
-}
+function clearInputs(){location.reload();}
+function logout(){sessionStorage.clear();location.href="index.html";}
 </script>
 </body>
 </html>
