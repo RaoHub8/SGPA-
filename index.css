@@ -70,18 +70,18 @@ input:focus {
   margin-bottom: 20px;
 }
 
-.semester-type button {
-  flex: 1;
-  padding: 14px;
-  border-radius: 10px;
-  font-size: 1rem;
-  border: 2px solid #ff9800;
-  background: transparent;
-  color: #ff9800;
+.sem-options label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background: #1c1c1c;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);
+  box-shadow: 0 0 8px rgba(255,140,0,0.35);
 }
+
 
 .semester-type button:hover {
   background: #ff9800;
