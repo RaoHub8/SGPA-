@@ -73,14 +73,22 @@ input {
 .sem-options label {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin-bottom: 10px;
+  justify-content: flex-start;
+  gap: 10px;
+
+  padding: 10px 14px;   /* reduced padding */
+  margin-bottom: 8px;
+
   border-radius: 8px;
   background: #1c1c1c;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(255,140,0,0.35);
+
+  box-shadow: 0 0 6px rgba(255,140,0,0.35);
+
+  width: 100%;          /* keeps card width neat */
+  max-width: 320px;     /* prevents oversized stretching */
 }
+
 
 .sem-options input {
   margin-right: 8px;
@@ -182,7 +190,7 @@ input {
   <button class="proceed-btn" onclick="proceed()">Proceed</button>
 
   <div class="credit">
-    Created by Anoop Rao · <a href="mailto:anoopraochess@gmail.com">Contact</a>
+    Created by Anoop Rao · <a href="mailto:anoopraochess@gmail.com">anoopraochess@gmail.com</a>
   </div>
 </div>
 
@@ -225,4 +233,5 @@ function proceed(){
 </script>
 </body>
 </html>
+
 
