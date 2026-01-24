@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== GLOBAL ===== */
 body {
   margin: 0;
   min-height: 100vh;
@@ -18,7 +17,6 @@ body {
   color: #fff;
 }
 
-/* ===== MAIN CARD ===== */
 .container {
   width: min(380px, 92vw);
   padding: 32px;
@@ -28,18 +26,15 @@ body {
   text-align: center;
 }
 
-/* ===== TITLE ===== */
 h1 {
-  margin-top: 0;
   color: #ff9800;
   text-shadow: 0 0 14px rgba(255,140,0,0.9);
 }
 
-/* ===== INPUT ===== */
-input[type="text"] {
+input {
   width: 100%;
   padding: 14px;
-  margin: 18px 0;
+  margin: 12px 0;
   border-radius: 8px;
   border: none;
   background: #111;
@@ -47,11 +42,9 @@ input[type="text"] {
   font-size: 1rem;
 }
 
-/* ===== ODD / EVEN BUTTONS ===== */
 .semester-type {
   display: flex;
   gap: 14px;
-  margin-bottom: 10px;
 }
 
 .semester-type button {
@@ -71,7 +64,6 @@ input[type="text"] {
   color: #000;
 }
 
-/* ===== SEM OPTIONS ===== */
 .sem-options {
   display: none;
   margin-top: 15px;
@@ -80,152 +72,96 @@ input[type="text"] {
 
 .sem-options label {
   display: block;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 6px;
   background: #1c1c1c;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255,140,0,0.35);
 }
 
 .sem-options input {
-  margin-right: 10px;
+  margin-right: 8px;
   accent-color: #ff9800;
 }
 
-/* ===== PROCEED BUTTON ===== */
 .proceed-btn {
-  margin-top: 18px;
+  margin-top: 15px;
   width: 100%;
   padding: 14px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #ff9800, #ff6f00);
+  background: linear-gradient(135deg,#ff9800,#ff6f00);
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 0 22px rgba(255,140,0,0.9);
 }
 
-.proceed-btn:hover {
-  transform: scale(1.02);
-}
-
-/* ===== OWNER INFO ===== */
-.owner {
-  margin-top: 26px;
-  text-align: center;
-}
-
-.owner-name {
-  font-size: 1rem;
-  color: #ff6a00;
-  font-weight: 500;
-  letter-spacing: 0.4px;
-  text-shadow:
-    0 0 6px rgba(255,106,0,0.6),
-    0 0 10px rgba(255,106,0,0.35);
-}
-
-.owner-text {
-  margin: 6px 0 2px;
-  font-size: 0.85rem;
-  color: #cccccc;
-}
-
-.owner-email {
-  font-size: 0.85rem;
-  color: #bbbbbb;
-}
-
-/* ===== MOBILE TWEAK ===== */
-@media (max-width: 600px) {
-  .owner-name { font-size: 0.9rem; }
-  .owner-email { font-size: 0.8rem; }
-}
-  .credit {
-  position: fixed;
-  bottom: 8px;
-  width: 100%;
-  text-align: center;
-  font-size: 0.75rem;
-  color: #aaa;
-  pointer-events: auto;
-}
-
-.credit a {
-  color: #ff6a00;
-  text-decoration: none;
-}
-
-.credit a:hover {
-  text-decoration: underline;
-}
-  /* ===== POPUP ===== */
+/* Popup */
 .popup-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
 }
 
 .popup-box {
-  background: #141414;
-  padding: 25px 22px;
-  border-radius: 12px;
-  text-align: center;
-  width: min(320px, 90vw);
-  box-shadow: 0 0 25px rgba(255,140,0,0.9);
+  background:#141414;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 0 25px rgba(255,140,0,0.9);
+  text-align:center;
+  max-width:320px;
 }
 
-.popup-box h2 {
-  margin-top: 0;
-  color: #ff9800;
-  text-shadow: 0 0 10px rgba(255,140,0,0.9);
+.popup-box h2 {color:#ff9800;}
+
+.popup-box button{
+  margin-top:15px;
+  padding:8px 18px;
+  border:none;
+  background:#ff9800;
+  color:#000;
+  font-weight:bold;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-.popup-box p {
-  font-size: 0.9rem;
-  color: #dddddd;
-  margin: 10px 0;
+.credit {
+  margin-top:18px;
+  font-size:0.75rem;
+  color:#aaa;
 }
-
-.popup-box b {
-  color: #ff9800;
-}
-
-.popup-box button {
-  margin-top: 15px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg,#ff9800,#ff6f00);
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(255,140,0,0.9);
-}
-
-
+.credit a {color:#ff6a00;text-decoration:none;}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- POPUP -->
+<div id="popup" class="popup-overlay">
+  <div class="popup-box">
+    <h2>Instructions</h2>
+    <p>1. Please enter correct USN.</p>
+    <p>2. Other departments except MD will be directed to a generic calculator page.</p>
+    <button onclick="closePopup()">OK</button>
+    <p>3. NCMC subjects having 0 credits are not added (eg. Constitution, EVS) </p>
+    <p>4.<b>First Years</b>Odd option shall have Chemistry cycle and Even option shall have Physics Cycle</p>
+  </div>
+</div>
 
+<div class="container">
   <h1>SGPA Predictor</h1>
 
-  <input type="text" id="name" placeholder="Enter your Name">
-  <input type="text" id="usn" placeholder="Enter your USN ">
+  <input type="text" id="name" placeholder="Enter Name">
+  <input type="text" id="usn" placeholder="Enter USN">
 
   <div class="semester-type">
     <button onclick="showOdd()">ODD</button>
     <button onclick="showEven()">EVEN</button>
   </div>
 
-  <!-- ODD SEM -->
   <div id="oddOptions" class="sem-options">
     <label><input type="radio" name="sem" value="1"> 1st Semester</label>
     <label><input type="radio" name="sem" value="3"> 3rd Semester</label>
@@ -233,7 +169,6 @@ input[type="text"] {
     <label><input type="radio" name="sem" value="7"> 7th Semester</label>
   </div>
 
-  <!-- EVEN SEM -->
   <div id="evenOptions" class="sem-options">
     <label><input type="radio" name="sem" value="2"> 2nd Semester</label>
     <label><input type="radio" name="sem" value="4"> 4th Semester</label>
@@ -242,90 +177,47 @@ input[type="text"] {
 
   <button class="proceed-btn" onclick="proceed()">Proceed</button>
 
-  <!-- OWNER -->
   <div class="credit">
-  Created by Anoop Rao · Medical Electronics · 
-  <a href="mailto:anoopraochess@gmail.com">anoopraochess@gmail.com</a>
-</div>
-
-
-</div>
-<!-- Instruction Popup -->
-<div id="instructionPopup" class="popup-overlay">
-  <div class="popup-box">
-    <h2>Instructions</h2>
-    <p>1. Please enter a correct USN.</p>
-    <p>2. All departments except <b>MD</b> will be directed to a generic calculator page.<br>
-       If any discrepancy is found in calculation or output, please contact the developer.</p>
-    <p>3. NCMC subjects having 0 credits are not added (eg. Constitution, EVS) </p>
-    <p><b>First Years</b>Odd option shall have Chemistry cycle and Even option shall have Physics Cycle</p>
-    <button onclick="closePopup()">OK</button>
+    Created by Anoop Rao · <a href="mailto:anoopraochess@gmail.com">Contact</a>
   </div>
 </div>
 
 <script>
-  // Show popup on page load
-window.onload = function() {
-  document.getElementById("instructionPopup").style.display = "flex";
-};
-
-function closePopup() {
-  document.getElementById("instructionPopup").style.display = "none";
+function closePopup(){
+ document.getElementById("popup").style.display="none";
 }
 
-function showOdd() {
-  document.getElementById("oddOptions").style.display = "block";
-  document.getElementById("evenOptions").style.display = "none";
+function showOdd(){
+ document.getElementById("oddOptions").style.display="block";
+ document.getElementById("evenOptions").style.display="none";
+}
+function showEven(){
+ document.getElementById("evenOptions").style.display="block";
+ document.getElementById("oddOptions").style.display="none";
 }
 
-function showEven() {
-  document.getElementById("evenOptions").style.display = "block";
-  document.getElementById("oddOptions").style.display = "none";
-}
+function proceed(){
+ const name=document.getElementById("name").value.trim();
+ const usn=document.getElementById("usn").value.trim().toUpperCase();
+ const sem=document.querySelector('input[name="sem"]:checked');
+ if(!name || !sem){alert("Enter name and semester");return;}
 
-function proceed() {
-  const name = document.getElementById("name").value.trim();
-  const usn = document.getElementById("usn").value.trim();
-  const sem = document.querySelector('input[name="sem"]:checked');
+ sessionStorage.setItem("name",name);
+ sessionStorage.setItem("usn",usn);
+ sessionStorage.setItem("semester",sem.value);
 
-  if (!name || !usn || !sem) {
-  alert("Please enter Name, USN and select Semester");
-  return;
-}
-  // Store values separately
-  sessionStorage.setItem("name", name);
-  sessionStorage.setItem("usn", usn.toUpperCase());
-  sessionStorage.setItem("semester", sem.value);
+ let dept="";
+ const match=usn.match(/1MS\d{2}([A-Z]{2})\d{3}/);
+ if(match) dept=match[1];
 
-  // Extract department from USN
-  let dept = "";
-  if (usn) {
-    const match = usn.toUpperCase().match(/^[0-9A-Z]{5}([A-Z]{2})[0-9]{3}$/);
-    if (match) dept = match[1];
-  }
-
-  // Routing
-  if (dept === "MD") {
-    if (["1","3","5","7"].includes(sem.value))
-      window.location.href = "odd.html";
-    else
-      window.location.href = "even.html";
-  } else {
-    if (["3","5","7"].includes(sem.value))
-      window.location.href = "oddother.html";
-    else
-      window.location.href = "evenother.html";
-  }
+ if(dept==="MD"){
+   if(["1","3","5","7"].includes(sem.value)) location.href="odd.html";
+   else location.href="even.html";
+ } else {
+   if(["1","3","5","7"].includes(sem.value)) location.href="oddother.html";
+   else location.href="evenother.html";
+ }
 }
 </script>
-
 </body>
-  </html>
-
-
-
-
-
-
-
-
+</html>
