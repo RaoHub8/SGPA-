@@ -149,6 +149,8 @@ input {
     <h2>Instructions</h2>
     <p>1. Please enter correct USN.</p>
     <p>2. Other departments except MD will be directed to a generic calculator page.</p>
+    <p>3. NCMC subjects having 0 credits are not added (eg. Constitution, EVS) </p>
+    <p><b>First Years</b>Odd option shall have Chemistry cycle and Even option shall have Physics Cycle</p>
     <button onclick="closePopup()">OK</button>
   </div>
 </div>
@@ -165,14 +167,14 @@ input {
   </div>
 
   <div id="oddOptions" class="sem-options">
-    <label><input type="radio" name="sem" value="1"> 1st Semester</label>
+    <label><input type="radio" name="sem" value="1"> Chemistry Cycle</label>
     <label><input type="radio" name="sem" value="3"> 3rd Semester</label>
     <label><input type="radio" name="sem" value="5"> 5th Semester</label>
     <label><input type="radio" name="sem" value="7"> 7th Semester</label>
   </div>
 
   <div id="evenOptions" class="sem-options">
-    <label><input type="radio" name="sem" value="2"> 2nd Semester</label>
+    <label><input type="radio" name="sem" value="2"> Physics Cycle</label>
     <label><input type="radio" name="sem" value="4"> 4th Semester</label>
     <label><input type="radio" name="sem" value="6"> 6th Semester</label>
   </div>
@@ -223,3 +225,4 @@ function proceed(){
 </script>
 </body>
 </html>
+
