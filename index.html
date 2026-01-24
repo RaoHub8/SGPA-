@@ -47,18 +47,17 @@ input {
   gap: 14px;
 }
 
-.sem-options label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  background: #1c1c1c;
+.semester-type button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px;
+  border: 2px solid #ff9800;
+  background: transparent;
+  color: #ff9800;
+  font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(255,140,0,0.35);
+  box-shadow: 0 0 10px rgba(255,140,0,0.6);
 }
-
 
 .semester-type button:hover {
   background: #ff9800;
@@ -72,11 +71,15 @@ input {
 }
 
 .sem-options label {
-  display: block;
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
   background: #1c1c1c;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255,140,0,0.35);
 }
 
 .sem-options input {
@@ -146,8 +149,6 @@ input {
     <h2>Instructions</h2>
     <p>1. Please enter correct USN.</p>
     <p>2. Other departments except MD will be directed to a generic calculator page.</p>
-    <p>3. NCMC subjects having 0 credits are not added (eg. Constitution, EVS) </p>
-    <p>4.<b>First Years</b>Odd option shall have Chemistry cycle and Even option shall have Physics Cycle</p>
     <button onclick="closePopup()">OK</button>
   </div>
 </div>
@@ -179,7 +180,7 @@ input {
   <button class="proceed-btn" onclick="proceed()">Proceed</button>
 
   <div class="credit">
-    Created by Anoop Rao · <a href="mailto:anoopraochess@gmail.com">anoopraochess@gmail.com</a>
+    Created by Anoop Rao · <a href="mailto:anoopraochess@gmail.com">Contact</a>
   </div>
 </div>
 
@@ -222,4 +223,3 @@ function proceed(){
 </script>
 </body>
 </html>
-
