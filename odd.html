@@ -1,242 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Odd Semester SGPA Predictor</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="predictor.css">
+<title>Odd Semester SGPA</title>
+<link rel="stylesheet" href="predictor.css">
 </head>
-
 <body>
 
 <div class="page">
+<div class="top-bar">
+<h1>Odd Semester SGPA Predictor</h1>
+<button onclick="logout()">Logout</button>
+</div>
 
-  <div class="top-bar">
-    <h1>Odd Semester SGPA Predictor</h1>
-    <button onclick="logout()">Logout</button>
-  </div>
+<div class="info" id="userInfo"></div>
+<div id="form" class="card"></div>
+<div class="action-bar">
+<button onclick="predictGrades()">Get Result</button>
+<button onclick="clearInputs()">Clear</button>
+</div>
+<div id="result" class="card"></div>
 
-  <div class="info" id="userInfo"></div>
-
-  <div id="form" class="card"></div>
-
-  <div class="action-bar">
-    <button onclick="predictGrades()">Get Result</button>
-    <button onclick="clearInputs()">Clear</button>
-  </div>
-
-  <div id="result" class="card"></div>
-
-<!-- ⚠️ Invalid Marks Warning -->
-<div id="warning" style="display:none; text-align:center; margin-top:20px;">
-  <img src="idiot_warning.png" style="max-width:90%; border-radius:12px;">
+<div id="warning" style="display:none;text-align:center;">
+<img src="idiot_warning.png" style="max-width:90%;border-radius:10px;">
+</div>
 </div>
 
 <script>
-/* ========= AUTH ========= */
-const name = sessionStorage.getItem("name");
-const semester = sessionStorage.getItem("semester");
+const name=sessionStorage.getItem("name");
+const usn=sessionStorage.getItem("usn");
+const semester=sessionStorage.getItem("semester");
+if(!name || !["1","3","5","7"].includes(semester)) location.href="index.html";
+document.getElementById("userInfo").innerText=`👤 ${name} (${usn}) | Sem ${semester}`;
 
-if (!name || !["3","5","7"].includes(semester)) {
-  window.location.href = "under_construction.html";
-}
-
-document.getElementById("userInfo").innerText =
-  `👤 ${name} | Semester: ${semester}`;
-
-/* ========= SUBJECT DATA ========= */
-const semesterSubjects = {
-
-  /* ===== SEM 3 ===== */
-  "3": [
-    { name: "Transform Techniques & Linear Programming", credits: 3, isHalf: false },
-   { name: "Signal Processing", credits: 4, isHalf: false },
-    { name: "Analog & Digital Electronic Circuits", credits: 3, isHalf: false },
-    { name: "Human Anatomy & Physiology", credits: 3, isHalf: false },
-    { name: "Object Oriented Programming", credits: 3, isHalf: false },
-
-    { name: "Universal Human Values", credits: 2, isHalf: false },
-
-    { name: "ADEC Lab", credits: 1, isHalf: true },
-    { name: "OOP Lab", credits: 1, isHalf: true },
-    { name: "AEC – Sensor Technology", credits: 1, isHalf: true }
-  ],
-
-  /* ===== SEM 5 ===== */
-  "5": [
-    { name: "Medical Physics", credits: 4, isHalf: false },
-
-    { name: "Digital Image Processing", credits: 3, isHalf: false },
-    { name: "Biomedical Instrumentation", credits: 3, isHalf: false },
-    { name: "Diagnostic & Therapeutic Equipment", credits: 3, isHalf: false },
-    { name: "Java / Python Programming", credits: 3, isHalf: false },
-    { name: "Research Methodology & IPR", credits: 3, isHalf: false },
-
-    { name: "Medical Physics Lab", credits: 1, isHalf: true },
-    { name: "Biomedical Instrumentation Lab", credits: 1, isHalf: true },
-    { name: "Safety of Biomedical Equipment", credits: 1, isHalf: true }
-  ],
-
-  /* ===== SEM 7 ===== */
-  "7": [
-    { name: "Neural Networks and Deep Learning", credits: 4, isHalf: false },
-
-    { name: "Medical Imaging Techniques", credits: 3, isHalf: false },
-    { name: "Wearable Devices", credits: 3, isHalf: false },
-    { name: "Open Elective", credits: 3, isHalf: false },
-  { name: "Skill Enhancement Lab", credits: 2, isHalf: true },
-
-    { name: "AI in Healthcare Lab", credits: 1, isHalf: true }
-  ]
+const semesterSubjects={
+"1":[
+ {name:"Mathematics",credits:4,isHalf:false},
+ {name:"Applied Chemistry",credits:4,isHalf:false},
+ {name:"Engineering Science",credits:3,isHalf:false},
+ {name:"C Programming",credits:4,isHalf:false},
+ {name:"AI Applications",credits:3,isHalf:false},
+ {name:"Communication Skills",credits:1,isHalf:true},
+ {name:"Interdisciplinary Project Lab",credits:1,isHalf:true}
+],
+"3":[
+ {name:"Signal Processing",credits:4,isHalf:false},
+ {name:"Transform Techniques",credits:3,isHalf:false},
+ {name:"ADEC",credits:3,isHalf:false},
+ {name:"HAP",credits:3,isHalf:false},
+ {name:"OOP",credits:3,isHalf:false},
+ {name:"UHV",credits:2,isHalf:true},
+ {name:"ADEC Lab",credits:1,isHalf:true},
+ {name:"OOP Lab",credits:1,isHalf:true},
+ {name:"AEC",credits:1,isHalf:true}
+],
+"5":[
+ {name:"Medical Physics",credits:4,isHalf:false},
+ {name:"DIP",credits:3,isHalf:false},
+ {name:"BMI",credits:3,isHalf:false},
+ {name:"D&TE",credits:3,isHalf:false},
+ {name:"Java/Python",credits:3,isHalf:false},
+ {name:"RMIPR",credits:3,isHalf:false},
+ {name:"MPLab",credits:1,isHalf:true},
+ {name:"BMILab",credits:1,isHalf:true},
+ {name:"Safety",credits:1,isHalf:true}
+],
+"7":[
+ {name:"NN&DL",credits:4,isHalf:false},
+ {name:"MIT",credits:3,isHalf:false},
+ {name:"Wearable",credits:3,isHalf:false},
+ {name:"Open Elective",credits:3,isHalf:false},
+ {name:"Skill Lab",credits:2,isHalf:true},
+ {name:"AIHC Lab",credits:1,isHalf:true}
+]
 };
 
-const subjects = semesterSubjects[semester];
+const subjects=semesterSubjects[semester];
+const grades=[10,9,8,7,6,5,0];
+const gradeLabels={10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
+const selectedGrades={};
 
-/* ========= GRADING ========= */
-const grades = [10,9,8,7,6,5,0];
-const gradeLabels = {10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
-const selectedGrades = {};
-
-/* ========= BUILD FORM ========= */
-const form = document.getElementById("form");
-subjects.forEach((sub, i) => {
-  const div = document.createElement("div");
-  div.className = "subject-group";
-  div.innerHTML = `
-    <label>${sub.name} (${sub.credits} Credits) – Internal Marks:</label>
-    <input type="number" id="sub${i}" min="0" max="50">
-  `;
-  form.appendChild(div);
+const form=document.getElementById("form");
+subjects.forEach((s,i)=>{
+ form.innerHTML+=`<div class="subject-group">
+ <label>${s.name} (${s.credits} Cr) :</label>
+ <input type="text" id="sub${i}">
+ </div>`;
 });
 
-/* ========= LOGIC ========= */
-function calculateRequiredMarks(internal, grade, isHalf) {
-  const lower = {10:90,9:80,8:70,7:60,6:50,5:40}[grade];
-  if (!lower) return -1;
-  const req = isHalf ? (lower - internal) : 2 * (lower - internal);
-  const max = isHalf ? 50 : 100;
-  return (req < 0 || req > max) ? -1 : req;
+function calculateRequiredMarks(internal,grade,isHalf){
+ const lower={10:90,9:80,8:70,7:60,6:50,5:40}[grade];
+ if(!lower) return -1;
+ const req=isHalf?(lower-internal):2*(lower-internal);
+ const max=isHalf?50:100;
+ return (req<0||req>max)?-1:req;
 }
 
-function predictGrades() {
-  document.getElementById("result").innerHTML = "";
-  Object.keys(selectedGrades).forEach(k => delete selectedGrades[k]);
+function predictGrades(){
+ document.getElementById("result").innerHTML="";
+ document.getElementById("warning").style.display="none";
 
-  // 🔥 HIDE WARNING FIRST
-  document.getElementById("warning").style.display = "none";
+ for(let i=0;i<subjects.length;i++){
+  const raw=document.getElementById(`sub${i}`).value.trim();
+  if(raw==="") continue;
+  if(!/^\d+$/.test(raw)){warning();return;}
+  const v=parseInt(raw);
+  if(v<0||v>50){warning();return;}
+ }
 
-  // 🔥 INVALID INTERNAL MARKS CHECK
-  for (let i = 0; i < subjects.length; i++) {
-    const val = parseFloat(document.getElementById(`sub${i}`).value);
-    if (!isNaN(val) && (val > 50 || val < 10)) {
-      document.getElementById("warning").style.display = "block";
-      return; // ⛔ STOP FUNCTION HERE
-    }
+ let html="";
+ subjects.forEach((sub,i)=>{
+  const internal=parseInt(document.getElementById(`sub${i}`).value);
+  if(isNaN(internal)) return;
+
+  html+=`<h3>${sub.name}</h3><table class="output-table"><tr>`;
+  grades.forEach(g=>html+=`<th>${gradeLabels[g]}</th>`);
+  html+=`</tr><tr>`;
+
+  grades.forEach(g=>{
+   const r=calculateRequiredMarks(internal,g,sub.isHalf);
+   const cls=r==-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
+   html+=`<td class="${cls}">${r==-1?"-":r}</td>`;
+  });
+  html+=`</tr></table>`;
+ });
+ document.getElementById("result").innerHTML=html;
+ updateSGPA();
+}
+
+function warning(){
+ document.getElementById("warning").style.display="block";
+}
+
+function updateSGPA(){
+ let tc=0,tp=0;
+ subjects.forEach((s,i)=>{
+  const internal=parseInt(document.getElementById(`sub${i}`).value);
+  if(!isNaN(internal)){
+    const g=selectedGrades[s.name]??10;
+    tc+=s.credits;
+    tp+=g*s.credits;
   }
-
-  let html = "";
-
-  subjects.forEach((sub, i) => {
-  const internal = parseFloat(document.getElementById(`sub${i}`).value);
-  if (isNaN(internal)) return;
-
-  html += `<h3>${sub.name}</h3>`;
-  html += `<table class="output-table"><tr>`;
-
-  grades.forEach(g => {
-    html += `<th>${gradeLabels[g]}</th>`;
-  });
-
-  html += `</tr><tr>`;
-
-  grades.forEach(g => {
-    const r = calculateRequiredMarks(internal, g, sub.isHalf);
-    const cls = r === -1
-      ? "not-possible"
-      : (r <= (sub.isHalf ? 45 : 86) ? "realistic" : "possible");
-
-    html += `<td class="${cls}">${r === -1 ? "-" : r.toFixed(1)}</td>`;
-  });
-
-  html += `</tr></table>`;
-
-  let def = 0;
-  for (let g of grades) {
-    const r = calculateRequiredMarks(internal, g, sub.isHalf);
-    if (r !== -1 && r <= (sub.isHalf ? 45 : 86)) {
-      def = g;
-      break;
-    }
-  }
-
-  selectedGrades[sub.name] = def;
-
-  html += `<p><strong>Select Expected Grade:</strong><br>`;
-  grades.forEach(g => {
-    html += `
-      <label>
-        <input type="radio" name="g${i}" ${g === def ? "checked" : ""}
-        onchange="updateSelectedGrade('${sub.name}', ${g})">
-        ${gradeLabels[g]}
-      </label>
-    `;
-  });
-  html += `</p>`;
-});
-
-  document.getElementById("result").innerHTML = html;
-  updateSGPA();
+ });
+ const sgpa=(tp/tc).toFixed(2);
+ document.getElementById("result").innerHTML+=`<h2>SGPA : ${sgpa}</h2>`;
+ saveResult(sgpa);
 }
 
-function updateSelectedGrade(sub, g) {
-  selectedGrades[sub] = g;
-  updateSGPA();
+function saveResult(sgpa){
+ fetch("https://sgpa-backend-m676.onrender.com/save-history",{
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({name,usn,semester,result:sgpa})
+ });
 }
 
-function updateSGPA() {
-  let tc = 0, tp = 0;
-  subjects.forEach(s => {
-    if (selectedGrades[s.name] !== undefined) {
-      tc += s.credits;
-      tp += selectedGrades[s.name] * s.credits;
-    }
-  });
-
-  const sgpa = (tp / tc).toFixed(2);
-  document.getElementById("result")
-    .insertAdjacentHTML("beforeend", `<h2>🎯 SGPA: ${sgpa}</h2>`);
-
-  saveResult(sgpa);
-}
-
-/* ========= BACKEND ========= */
-function saveResult(sgpa) {
-  const usn = sessionStorage.getItem("usn");
-
-  fetch("https://sgpa-backend-m676.onrender.com/save-history", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ 
-      name, 
-      usn,
-      semester, 
-      result: sgpa, 
-      grades: selectedGrades 
-    })
-  });
-}
-
-/* ========= UTIL ========= */
-function clearInputs() {
-  subjects.forEach((_, i) => document.getElementById(`sub${i}`).value = "");
-  document.getElementById("result").innerHTML = "";
-}
-
-function logout() {
-  sessionStorage.clear();
-  window.location.href = "index.html";
-}
+function clearInputs(){location.reload();}
+function logout(){sessionStorage.clear();location.href="index.html";}
 </script>
-
 </body>
 </html>
