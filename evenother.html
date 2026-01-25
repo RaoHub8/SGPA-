@@ -37,16 +37,16 @@ document.getElementById("userInfo").innerText=`👤 ${name} | Semester: ${semest
 
 /* ===== CREDIT MAP ===== */
 const semesterCredits={
- "2":[4,3,3,3,3,1,1,1],   // Physics Cycle
- "4":[4,3,3,3,3,1,1,1],
+ "2":[4,4,3,3,1,1,1,1,2],   // Physics Cycle
+ "4":[4,3,3,3,3,1,1,1,1],
  "6":[4,4,3,3,3,3,1,1]    // second 4 = Mini Project
 };
 
 /* ===== PLACEHOLDER NAMES ===== */
 const semesterNames={
- "2":["Subject1","Subject2","Subject3","Subject4","Subject5","Lab1","Lab2","AEC"],
- "4":["Subject1","Subject2","Subject3","Subject4","Subject5","Lab1","Lab2","AEC"],
- "6":["Subject1","Mini Project","Subject3","Subject4","Subject5","Subject6","Lab1","Lab2"]
+ "2":["Maths ","Physics "," ESC ","PSC "," Soft Skills","Kannada","IDT Lab","PSC Lab","CAED"],
+ "4":["Subject1","Maths","Subject3","Subject4","Subject5","Lab1","Lab2","Lab3","AEC"],
+ "6":["Subject1","Mini Project","Subject3","Subject4","Management & Entrepreneurship","Open Elective","Lab1","Lab2"]
 };
 
 const subjects=semesterCredits[semester].map((c,i)=>({
