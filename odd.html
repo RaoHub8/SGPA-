@@ -160,16 +160,20 @@ function predictGrades(){
    });
    html+=`</tr></table>`;
 
-   // corrected default grade logic
-   let def=0;
-   for(let g of grades){
-     const lower={10:90,9:80,8:70,7:60,6:50,5:40}[g];
-     const r=calculateRequiredMarks(internal,g,sub.isHalf);
-     if(internal>=lower){ def=g; break; }
-     if(r!==-1){ def=g; break; }
-   }
-   selectedGrades[sub.name]=def;
+ let def = 0;
+for (let g of grades) {
+  const r = calculateRequiredMarks(internal, g, sub.isHalf);
 
+  // skip grade if not achievable
+  if (r === -1) continue;
+
+  // if required marks too high, skip to next grade
+  if (r > (sub.isHalf ? 45 : 86)) continue;
+
+  // first achievable realistic grade
+  def = g;
+  break;
+}
    html+=`<p><strong>Select Expected Grade:</strong><br>`;
    grades.forEach(g=>{
      html+=`
