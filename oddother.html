@@ -1,66 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Odd Semester SGPA</title>
+<meta charset="UTF-8">
+<title>SGPA Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link rel="stylesheet" href="predictor.css">
 </head>
 <body>
 
 <div class="page">
-<div class="top-bar">
-<h1>Odd Semester SGPA Predictor</h1>
-<button onclick="logout()">Logout</button>
+  <div class="top-bar">
+    <h1>SGPA Predictor</h1>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="info" id="userInfo"></div>
+  <div id="form" class="card"></div>
+
+  <div class="action-bar">
+    <button onclick="predictGrades()">Get Result</button>
+    <button onclick="clearInputs()">Clear</button>
+  </div>
+
+  <div id="result" class="card"></div>
+
+  <!-- Warning -->
+  <div id="warning" style="display:none;text-align:center;margin-top:20px;">
+    <img src="idiot_warning.png" style="max-width:90%;border-radius:12px;">
+  </div>
 </div>
 
-<div class="info" id="userInfo"></div>
-<div id="form" class="card"></div>
-
-<div class="action-bar">
-<button onclick="predictGrades()">Get Result</button>
-<button onclick="clearInputs()">Clear</button>
-</div>
-
-<div id="result" class="card"></div>
-
-<div id="warning" style="display:none;text-align:center;">
-<img src="idiot_warning.png" style="max-width:90%;border-radius:10px;">
-</div>
-</div>
 
 <script>
 const name=sessionStorage.getItem("name");
-const usn=sessionStorage.getItem("usn");
 const semester=sessionStorage.getItem("semester");
 if(!name || !["1","3","5","7"].includes(semester)) location.href="index.html";
-document.getElementById("userInfo").innerText=`👤 ${name} (${usn}) | Sem ${semester}`;
+document.getElementById("userInfo").innerText=`👤 ${name} | Semester: ${semester}`;
 
-/* ===== GENERIC CREDIT PATTERN ODD ===== */
+/* ===== CREDIT MAP ===== */
 const semesterCredits={
-"1":[4,4,3,4,3,1,1],
-"3":[4,3,3,3,3,2,1,1,1],
-"5":[4,3,3,3,3,3,1,1,1],
-"7":[4,3,3,3,2,1]
+ "1":[4,3,3,3,3,1,1,1],     // Chemistry Cycle
+ "3":[4,3,3,3,3,2,1,1,1],
+ "5":[4,3,3,3,3,3,1,1,1],
+ "7":[4,3,3,3,2,1]
+};
+
+/* ===== PLACEHOLDER NAMES ===== */
+const semesterNames={
+ "1":["Subject1","Subject2","Subject3","Subject4","Subject5","Lab1","Lab2","AEC"],
+ "3":["Subject1","Subject2","Subject3","Subject4","Subject5","UHV","Lab1","Lab2","AEC"],
+ "5":["Subject1","Subject2","Subject3","Subject4","Subject5","Subject6","Lab1","Lab2","AEC"],
+ "7":["Subject1","Subject2","Subject3","Subject4","Subject5","Lab"]
 };
 
 const subjects=semesterCredits[semester].map((c,i)=>({
- name:`${c} Credit Subject ${i+1}`,
+ name: semesterNames[semester][i],
  credits:c,
- isHalf:(c<=2)
+ isHalf:(c===1 || c===2 )
 }));
 
-/* ===== COMMON LOGIC ===== */
+/* ===== GRADING ===== */
 const grades=[10,9,8,7,6,5,0];
 const gradeLabels={10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
+const selectedGrades={};
 
+/* ===== BUILD FORM ===== */
 const form=document.getElementById("form");
-subjects.forEach((s,i)=>{
+subjects.forEach((sub,i)=>{
  form.innerHTML+=`
- <div class="subject-group">
- <label>${s.name} :</label>
- <input type="text" id="sub${i}">
- </div>`;
+  <div class="subject-group">
+   <label>${sub.name} (${sub.credits} cr) - Internal Marks:</label>
+   <input type="text" id="sub${i}">
+  </div>`;
 });
 
+/* ===== CORE ===== */
 function calculateRequiredMarks(internal,grade,isHalf){
  const lower={10:90,9:80,8:70,7:60,6:50,5:40}[grade];
  if(!lower) return -1;
@@ -70,60 +84,86 @@ function calculateRequiredMarks(internal,grade,isHalf){
 }
 
 function predictGrades(){
- document.getElementById("result").innerHTML="";
- document.getElementById("warning").style.display="none";
+ result.innerHTML=""; warning.style.display="none";
+ Object.keys(selectedGrades).forEach(k=>delete selectedGrades[k]);
 
  for(let i=0;i<subjects.length;i++){
   const raw=document.getElementById(`sub${i}`).value.trim();
   if(raw==="") continue;
-  if(!/^\d+$/.test(raw)) return showWarning();
-  const v=parseInt(raw);
-  if(v<0||v>50) return showWarning();
+  if(!/^\d+(\.\d+)?$/.test(raw)){warning.style.display="block";return;}
+  const v=parseFloat(raw);
+  if(v<0||v>50){warning.style.display="block";return;}
  }
 
  let html="";
- let tc=0,tp=0;
-
  subjects.forEach((sub,i)=>{
-  const internal=parseInt(document.getElementById(`sub${i}`).value);
+  const internal=parseFloat(document.getElementById(`sub${i}`).value);
   if(isNaN(internal)) return;
 
   html+=`<h3>${sub.name}</h3><table class="output-table"><tr>`;
   grades.forEach(g=>html+=`<th>${gradeLabels[g]}</th>`);
   html+=`</tr><tr>`;
 
-  let bestGrade=0;
   grades.forEach(g=>{
    const r=calculateRequiredMarks(internal,g,sub.isHalf);
-   const cls=r==-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
-   html+=`<td class="${cls}">${r==-1?"-":r}</td>`;
-   if(bestGrade===0 && r!==-1 && r<=(sub.isHalf?45:86)) bestGrade=g;
+   const cls=r===-1?"not-possible":(r<=(sub.isHalf?45:86)?"realistic":"possible");
+   html+=`<td class="${cls}">${r===-1?"-":r.toFixed(1)}</td>`;
   });
-
   html+=`</tr></table>`;
-  tc+=sub.credits;
-  tp+=bestGrade*sub.credits;
+
+  let def=0;
+  for(let g of grades){
+   const r=calculateRequiredMarks(internal,g,sub.isHalf);
+   if(r===-1) continue;
+   if(r>(sub.isHalf?45:86)) continue;
+   def=g; break;
+  }
+  selectedGrades[sub.name]=def;
+
+  html+=`<p><strong>Select Expected Grade:</strong><br>`;
+  grades.forEach(g=>{
+   html+=`<label><input type="radio" name="g${i}" ${g===def?"checked":""}
+    onchange="updateSelectedGrade('${sub.name}',${g})"> ${gradeLabels[g]}</label>`;
+  });
+  html+=`</p>`;
  });
 
+ result.innerHTML=html;
+ updateSGPA();
+}
+
+function updateSelectedGrade(sub,g){selectedGrades[sub]=g;updateSGPA();}
+
+function updateSGPA(){
+ let tc=0,tp=0;
+ subjects.forEach(s=>{
+  if(selectedGrades[s.name]!=undefined){
+   tc+=s.credits; tp+=selectedGrades[s.name]*s.credits;
+  }
+ });
  const sgpa=(tp/tc).toFixed(2);
- document.getElementById("result").innerHTML=html+`<h2>🎯 SGPA: ${sgpa}</h2>`;
- saveResult(sgpa);
+result.insertAdjacentHTML("beforeend",`<h2>🎯 SGPA: ${sgpa}</h2>`);
+saveResult(sgpa);
 }
 
-function showWarning(){
- document.getElementById("warning").style.display="block";
-}
-
+/* ===== BACKEND ===== */
 function saveResult(sgpa){
  fetch("https://sgpa-backend-m676.onrender.com/save-history",{
- method:"POST",
- headers:{"Content-Type":"application/json"},
- body:JSON.stringify({name,usn,semester,result:sgpa})
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({name,semester,result:sgpa,grades:selectedGrades})
  });
 }
 
-function clearInputs(){location.reload();}
-function logout(){sessionStorage.clear();location.href="index.html";}
+function clearInputs(){
+ subjects.forEach((_,i)=>document.getElementById(`sub${i}`).value="");
+ document.getElementById("result").innerHTML="";
+}
+
+function logout(){
+ sessionStorage.clear();
+ location.href="index.html";
+}
 </script>
 </body>
 </html>
