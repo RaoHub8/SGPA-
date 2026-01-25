@@ -43,10 +43,10 @@ if(!name || !["2","4","6"].includes(semester)){
 document.getElementById("userInfo").innerText=
 `👤 ${name} | Semester: ${semester}`;
 
-/* ===== SUBJECT DATA ===== */
+
 const semesterSubjects={
 
- /* ===== SEM 2 : PHYSICS CYCLE ===== */
+
  "2":[
   {name:"Mathematics",credits:4,isHalf:false},
   {name:"Engineering Physics",credits:3,isHalf:false},
@@ -57,7 +57,7 @@ const semesterSubjects={
   {name:"AEC",credits:1,isHalf:true}
  ],
 
- /* ===== SEM 4 ===== */
+
  "4":[
   {name:"Control Systems",credits:4,isHalf:false},
   {name:"Biomedical Signal Processing",credits:3,isHalf:false},
@@ -70,7 +70,6 @@ const semesterSubjects={
   {name:"RTES Lab",credits:1,isHalf:true}
  ],
 
- /* ===== SEM 6 ===== */
  "6":[
   {name:"BMIP",credits:4,isHalf:false},
   {name:"Mini Project",credits:4,isHalf:true},
@@ -85,12 +84,12 @@ const semesterSubjects={
 
 const subjects=semesterSubjects[semester];
 
-/* ===== GRADING ===== */
+
 const grades=[10,9,8,7,6,5,0];
 const gradeLabels={10:"O",9:"A+",8:"A",7:"B+",6:"B",5:"C",0:"F"};
 const selectedGrades={};
 
-/* ===== BUILD FORM ===== */
+
 const form=document.getElementById("form");
 subjects.forEach((sub,i)=>{
  const div=document.createElement("div");
@@ -102,7 +101,7 @@ subjects.forEach((sub,i)=>{
  form.appendChild(div);
 });
 
-/* ===== CORE LOGIC ===== */
+
 function calculateRequiredMarks(internal,grade,isHalf){
  const lower={10:90,9:80,8:70,7:60,6:50,5:40}[grade];
  if(!lower) return -1;
@@ -137,7 +136,9 @@ function predictGrades(){
 
   grades.forEach(g=>{
     const r=calculateRequiredMarks(internal,g,sub.isHalf);
-    const cls=r===-1?"not-possible":(r!==-1?"realistic":"possible");
+    const cls = r === -1 
+  ? "not-possible" 
+  : (r <= (sub.isHalf ? 45 : 86) ? "realistic" : "possible");
     html+=`<td class="${cls}">${r===-1?"-":r.toFixed(1)}</td>`;
   });
   html+=`</tr></table>`;
@@ -146,16 +147,15 @@ function predictGrades(){
 for (let g of grades) {
   const r = calculateRequiredMarks(internal, g, sub.isHalf);
 
-  // skip grade if not achievable
   if (r === -1) continue;
 
-  // if required marks too high, skip to next grade
   if (r > (sub.isHalf ? 45 : 86)) continue;
 
-  // first achievable realistic grade
   def = g;
   break;
 }
+   selectedGrades[sub.name] = def;
+   
   html+=`<p><strong>Select Expected Grade:</strong><br>`;
   grades.forEach(g=>{
     html+=`
