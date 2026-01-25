@@ -39,7 +39,7 @@ document.getElementById("userInfo").innerText=`👤 ${name} | Semester: ${semest
 
 /* ===== CREDIT MAP ===== */
 const semesterCredits={
- "1":[4,3,3,3,3,1,1,1],     // Chemistry Cycle
+ "1":[4,4,4,3,3,1,1],     // Chemistry Cycle
  "3":[4,3,3,3,3,2,1,1,1],
  "5":[4,3,3,3,3,3,1,1,1],
  "7":[4,3,3,3,2,1]
@@ -47,10 +47,10 @@ const semesterCredits={
 
 /* ===== PLACEHOLDER NAMES ===== */
 const semesterNames={
- "1":["Subject1","Subject2","Subject3","Subject4","Subject5","Lab1","Lab2","AEC"],
- "3":["Subject1","Subject2","Subject3","Subject4","Subject5","UHV","Lab1","Lab2","AEC"],
- "5":["Subject1","Subject2","Subject3","Subject4","Subject5","Subject6","Lab1","Lab2","AEC"],
- "7":["Subject1","Subject2","Subject3","Subject4","Subject5","Lab"]
+ "1":["Maths ","Chemistry ","PLC(IC) ","ESC ","ETC ","Communication Skills","AEC"],
+ "3":["Subject1","Maths","Subject3","Subject4","Subject5","UHV","Lab1","Lab2","AEC"],
+ "5":["Subject1","Subject2","Subject3","Subject4","Subject5","RM&IPR","Lab1","Lab2","AEC"],
+ "7":["Subject1","Subject2","Subject3","Open Elective","Skill Lab","Lab1"]
 };
 
 const subjects=semesterCredits[semester].map((c,i)=>({
