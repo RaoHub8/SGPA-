@@ -34,6 +34,7 @@
 <script>
 const name=sessionStorage.getItem("name");
 const semester=sessionStorage.getItem("semester");
+const usn = sessionStorage.getItem("usn");
 if(!name || !["1","3","5","7"].includes(semester)) location.href="index.html";
 document.getElementById("userInfo").innerText=`👤 ${name} | Semester: ${semester}`;
 
@@ -151,7 +152,7 @@ function saveResult(sgpa){
  fetch("https://sgpa-backend-m676.onrender.com/save-history",{
   method:"POST",
   headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({name,semester,result:sgpa,grades:selectedGrades})
+  body:JSON.stringify({name,usn,semester,result:sgpa,grades:selectedGrades})
  });
 }
 
